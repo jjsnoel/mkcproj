@@ -1,30 +1,47 @@
 @echo off
 title Munich Boys Choir Admin Dashboard
-
 cd /d "%~dp0"
 
 echo ==========================================
-echo  Munich Boys Choir Admin Dashboard
+echo Munich Boys Choir Admin Dashboard
 echo ==========================================
 echo.
 
-if not exist ".venv\Scripts\python.exe" (
-    echo [ERROR] .venv 가상환경을 찾을 수 없습니다.
-    echo 먼저 VS Code 터미널에서 py -m venv .venv 를 실행해야 합니다.
+where py >nul 2>nul
+if errorlevel 1 (
+    echo [ERROR] Python launcher was not found.
+    echo Please install Python and check Add python.exe to PATH.
     pause
-    exit /b
+    exit /b 1
 )
 
-if not exist "app.py" (
-    echo [ERROR] app.py 파일을 찾을 수 없습니다.
-    pause
-    exit /b
+if not exist ".venv\Scripts\python.exe" (
+    echo [SETUP] Creating virtual environment...
+    py -m venv .venv
+    if errorlevel 1 (
+        echo [ERROR] Failed to create virtual environment.
+        pause
+        exit /b 1
+    )
 )
 
 call ".venv\Scripts\activate.bat"
 
-echo 대시보드를 실행합니다...
-echo 브라우저가 자동으로 열리지 않으면 아래 주소로 들어가세요.
+echo [SETUP] Upgrading pip...
+python -m pip install --upgrade pip
+
+echo [SETUP] Installing requirements...
+python -m pip install -r requirements.txt
+
+if not exist "app.py" (
+    echo [ERROR] app.py was not found.
+    pause
+    exit /b 1
+)
+
+echo.
+echo Starting dashboard...
+echo If browser does not open, go to:
 echo http://localhost:8501
 echo.
 
