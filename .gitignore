@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Local secrets
+.env
+**/.env
+
+# Archives and generated packages
+*.zip
+*.7z
+*.rar
+
+# Streamlit/local files
+.streamlit/secrets.toml
+
+# Dashboard local/private data
+munich_admin_dashboard/data/*.csv
+munich_admin_dashboard/data/*.json
+!munich_admin_dashboard/data/.gitkeep
+!munich_admin_dashboard/data/README.md
+
+# Local Facebook photo archive data
+Muenchner_Knabenchor_Archive/
+munich_admin_dashboard/Muenchner_Knabenchor_Archive/
+**/Muenchner_Knabenchor_Archive/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local backup of standalone Facebook archive tool
+_local_backup_mkn_facebook_archive_github_ready/
+*.zip
+
+# Local backup of standalone Facebook archive tool
+_local_backup_mkn_facebook_archive_github_ready/
+*.zip

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from archive_manager import init_archive, script_dir
+try:
+    from .archive_manager import init_archive, script_dir
+except ImportError:  # Allows: python facebook_archive/setup_archive.py
+    from archive_manager import init_archive, script_dir
 
 
 def main() -> int:
