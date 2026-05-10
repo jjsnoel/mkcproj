@@ -564,14 +564,27 @@ def parse_date(date_text: str):
 def ensure_csv(path: Path, headers: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists() and path.stat().st_size > 0:
-        with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            existing_headers = reader.fieldnames or []
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.reader(handle)
+            rows = list(reader)
+            existing_headers = [header.strip().strip('"') for header in rows[0]] if rows else []
+            data_rows = rows[1:] if rows else []
             if existing_headers == headers:
                 return
             if all(header in headers for header in existing_headers):
-                rows = list(reader)
-                write_csv(path, headers, rows)
+                normalized_rows: list[dict[str, object]] = []
+                for values in data_rows:
+                    if len(values) == len(headers):
+                        row = dict(zip(headers, values))
+                    else:
+                        row = dict(zip(existing_headers, values))
+                        if len(values) > len(existing_headers):
+                            overflow = values[len(existing_headers) :]
+                            missing_headers = [header for header in headers if header not in existing_headers]
+                            for header, value in zip(missing_headers, overflow):
+                                row[header] = value
+                    normalized_rows.append(row)
+                write_csv(path, headers, normalized_rows)
                 return
         return
     with path.open("w", encoding="utf-8", newline="") as handle:

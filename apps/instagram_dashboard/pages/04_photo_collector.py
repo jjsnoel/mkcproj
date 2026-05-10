@@ -104,6 +104,8 @@ def read_master_index(archive_root: Path) -> pd.DataFrame:
     index_path = archive_root / "03_INDEX" / "master_index.csv"
     if not index_path.exists():
         return pd.DataFrame()
+    if archive_manager is not None and hasattr(archive_manager, "ensure_csv") and hasattr(archive_manager, "MASTER_HEADERS"):
+        archive_manager.ensure_csv(index_path, archive_manager.MASTER_HEADERS)
     return pd.read_csv(index_path, dtype=str).fillna("")
 
 
