@@ -629,6 +629,63 @@ def caption_summary(text: str, max_chars: int = 160) -> str:
     return compact[: max_chars - 3].rstrip() + "..."
 
 
+def suggest_post_title(caption_text: str, image_count: int = 0, max_chars: int = 90) -> str:
+    compact = re.sub(r"https?://\S+", "", caption_text or "")
+    compact = re.sub(r"[@#]\S+", "", compact)
+    compact = re.sub(r"\s+", " ", compact).strip(" -–—_/\\")
+    if not compact:
+        return "No Caption Photo" if image_count == 1 else "No Caption Photos"
+
+    sentences = [
+        sentence.strip(" -–—_/\\")
+        for sentence in re.split(r"(?<=[.!?。！？])\s+|\n+", compact)
+        if sentence.strip(" -–—_/\\")
+    ]
+    if not sentences:
+        sentences = [compact]
+
+    theme_keywords = [
+        "konzert",
+        "concert",
+        "probe",
+        "rehearsal",
+        "aufnahme",
+        "recording",
+        "cd",
+        "reise",
+        "tour",
+        "ibiza",
+        "geburtstag",
+        "birthday",
+        "premiere",
+        "zauberflöte",
+        "zauberflote",
+        "sommerkonzert",
+        "weihnacht",
+        "christmas",
+        "chor",
+        "knabenchor",
+    ]
+
+    def score(sentence: str) -> tuple[int, int]:
+        lower = sentence.lower()
+        keyword_score = sum(1 for keyword in theme_keywords if keyword in lower)
+        length_score = min(len(sentence), max_chars)
+        return keyword_score, length_score
+
+    selected = max(sentences[:4], key=score)
+    selected = selected.strip(" .,!?:;\"'“”‘’()[]{}")
+    if len(selected) > max_chars:
+        trimmed = selected[:max_chars].rsplit(" ", 1)[0].strip(" .,!?:;\"'“”‘’()[]{}")
+        selected = trimmed or selected[:max_chars].strip(" .,!?:;\"'“”‘’()[]{}")
+    weak_endings = {"for", "of", "the", "a", "an", "für", "der", "die", "das", "den", "dem", "des", "und", "mit", "von", "zu", "in", "im", "am"}
+    words = selected.split()
+    while len(words) > 1 and words[-1].lower().strip(" .,!?:;\"'“”‘’()[]{}") in weak_endings:
+        words = words[:-1]
+        selected = " ".join(words).strip(" .,!?:;\"'“”‘’()[]{}")
+    return selected or ("No Caption Photo" if image_count == 1 else "No Caption Photos")
+
+
 def translate_caption_to_korean(text: str, source_lang: str = "de") -> str:
     compact = text.strip()
     if not compact:
@@ -766,10 +823,6 @@ def archive_inbox_post(
     inbox_images = root / "00_INBOX" / "images"
     image_sources = gather_image_files(inbox_images)
 
-    safe_title = title.strip()
-    if not safe_title:
-        safe_title = "No Caption Photo" if len(image_sources) == 1 else "No Caption Photos"
-
     resolved_caption_file: Path | None = Path(caption_file).expanduser().resolve() if caption_file else None
     if resolved_caption_file and not resolved_caption_file.is_file():
         raise ArchiveError(f"Caption path must be a text file: {resolved_caption_file}")
@@ -778,6 +831,8 @@ def archive_inbox_post(
         final_caption_text = read_text_safely(resolved_caption_file)
     else:
         final_caption_text = caption_text or ""
+
+    safe_title = title.strip() or suggest_post_title(final_caption_text, len(image_sources))
 
     has_caption = bool(final_caption_text.strip())
     korean_caption_text = translate_caption_to_korean(final_caption_text, caption_source_lang) if has_caption else ""
@@ -1109,6 +1164,7 @@ def command_new_post(args: argparse.Namespace) -> int:
     errors: list[str] = []
     if CAPTION_TRANSLATION_PENDING_MARKER in korean_caption_text:
         errors.append("Caption Korean translation is pending. Run SETUP_VIDEO_STT_ONCE.bat, then rerun translation.")
+    title = title.strip() or suggest_post_title(caption_text, len(image_sources))
 
     year_dir = archive_root / "01_ORIGINAL_BY_YEAR" / str(date_obj.year)
     year_dir.mkdir(parents=True, exist_ok=True)

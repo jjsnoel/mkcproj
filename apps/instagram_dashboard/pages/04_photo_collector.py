@@ -63,6 +63,8 @@ def inbox_images(archive_root: Path, image_exts: set[str]) -> list[Path]:
 
 
 def default_title(caption: str, image_count: int) -> str:
+    if archive_manager is not None and hasattr(archive_manager, "suggest_post_title"):
+        return archive_manager.suggest_post_title(caption, image_count)
     compact = " ".join(caption.split())
     if compact:
         return compact[:70].strip(" .,-_/\\")
@@ -286,10 +288,11 @@ caption_source_lang = st.selectbox(
     key=f"caption_source_lang_{st.session_state.post_form_version}",
 )
 computed_title = default_title(caption_text, len(images))
+title_seed = abs(hash((caption_text, len(images))))
 post_title = st.text_input(
     "게시물 제목",
     value=computed_title,
-    key=f"post_title_{st.session_state.post_form_version}",
+    key=f"post_title_{st.session_state.post_form_version}_{title_seed}",
 )
 source_url = st.text_input(
     "Source URL",
