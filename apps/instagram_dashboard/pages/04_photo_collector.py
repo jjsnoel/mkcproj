@@ -109,6 +109,12 @@ except Exception as exc:
 
 images = inbox_images(archive_root, image_exts)
 
+if "upload_widget_version" not in st.session_state:
+    st.session_state.upload_widget_version = 0
+
+if st.session_state.get("upload_flash"):
+    st.success(st.session_state.pop("upload_flash"))
+
 st.markdown("""
 ### 사용 흐름
 1. 아래 폴더에 새 사진을 넣습니다.  
@@ -122,6 +128,7 @@ uploaded_images = st.file_uploader(
     type=sorted(ext.lstrip(".") for ext in image_exts),
     accept_multiple_files=True,
     help="선택한 이미지는 00_INBOX/images에 저장됩니다.",
+    key=f"image_upload_{st.session_state.upload_widget_version}",
 )
 
 upload_col, _ = st.columns([1, 3])
@@ -139,13 +146,9 @@ if save_uploads and uploaded_images:
         st.error(f"업로드 저장 실패: {exc}")
         st.exception(exc)
     else:
-        st.success(f"{len(saved)}개 이미지를 인박스에 저장했습니다.")
-        st.dataframe(
-            pd.DataFrame({"saved_to": [str(path) for path in saved]}),
-            use_container_width=True,
-            hide_index=True,
-        )
-        images = inbox_images(archive_root, image_exts)
+        st.session_state.upload_flash = f"{len(saved)}개 이미지를 인박스에 저장했습니다."
+        st.session_state.upload_widget_version += 1
+        st.rerun()
 
 col_a, col_b, col_c, col_d = st.columns(4)
 col_a.metric("Inbox Images", len(images))
