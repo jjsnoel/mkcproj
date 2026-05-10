@@ -21,13 +21,35 @@ def toolkit_root() -> Path:
 
 ROOT = toolkit_root()
 GERMAN_APP_DIR = ROOT / "apps" / "german_stt_local"
+DASHBOARD_DIR = ROOT / "apps" / "instagram_dashboard"
+if str(DASHBOARD_DIR) not in sys.path:
+    sys.path.insert(0, str(DASHBOARD_DIR))
 if str(GERMAN_APP_DIR) not in sys.path:
     sys.path.insert(0, str(GERMAN_APP_DIR))
 
-st.info(
-    "첫 실행 전에는 루트 폴더의 `SETUP_VIDEO_STT_ONCE.bat`를 한 번 실행하는 게 안전합니다. "
-    "Whisper/NLLB 모델은 처음 사용할 때 인터넷으로 다운로드됩니다."
-)
+from setup_helpers import install_video_translation_requirements, missing_video_translation_packages
+
+
+missing_packages = missing_video_translation_packages()
+if missing_packages:
+    st.warning("자막/번역 패키지 설치가 필요합니다: " + ", ".join(missing_packages))
+    if st.button("자막/번역 패키지 설치", type="primary"):
+        with st.status("필요한 패키지를 설치하는 중입니다. 처음 실행이면 시간이 걸릴 수 있습니다.", expanded=True) as status:
+            install_result = install_video_translation_requirements(ROOT)
+            st.code(install_result["command"], language="powershell")
+            if install_result["output"]:
+                st.code(str(install_result["output"])[-12000:], language="text")
+            if install_result["ok"]:
+                status.update(label="설치 완료. 페이지를 다시 실행합니다.", state="complete")
+                st.rerun()
+            else:
+                status.update(label="설치 실패", state="error")
+                st.error(install_result["error"])
+                st.stop()
+else:
+    st.success("자막/번역 패키지가 준비되어 있습니다.")
+
+st.caption("Whisper/NLLB 모델은 처음 사용할 때 인터넷으로 다운로드됩니다.")
 
 try:
     import torch  # type: ignore
@@ -85,7 +107,7 @@ if start and uploaded is not None:
         from pipeline import run_full_pipeline  # type: ignore
     except Exception as exc:
         st.error(f"독일어 STT/번역 모듈을 불러오지 못했습니다: {exc}")
-        st.code("SETUP_VIDEO_STT_ONCE.bat", language="text")
+        st.info("상단의 `자막/번역 패키지 설치` 버튼으로 필요한 패키지를 설치하세요.")
         st.stop()
 
     input_dir = GERMAN_APP_DIR / "input" / "uploaded"

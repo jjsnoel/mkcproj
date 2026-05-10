@@ -26,6 +26,11 @@ ROOT = toolkit_root()
 DEFAULT_ARCHIVE_ROOT = ROOT / "modules" / "facebook_archive" / "Muenchner_Knabenchor_Archive"
 DEFAULT_MANAGER_DIR = ROOT / "modules" / "facebook_archive"
 FALLBACK_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff", ".heic", ".heif"}
+DASHBOARD_DIR = ROOT / "apps" / "instagram_dashboard"
+if str(DASHBOARD_DIR) not in sys.path:
+    sys.path.insert(0, str(DASHBOARD_DIR))
+
+from setup_helpers import install_video_translation_requirements, missing_video_translation_packages
 
 
 def load_archive_manager(manager_dir: Path):
@@ -127,6 +132,24 @@ if "upload_widget_version" not in st.session_state:
 
 if st.session_state.get("upload_flash"):
     st.success(st.session_state.pop("upload_flash"))
+
+missing_translation_packages = missing_video_translation_packages()
+if missing_translation_packages:
+    with st.expander("캡션 한국어 번역 패키지 설치", expanded=False):
+        st.warning("캡션 자동 번역 패키지 설치가 필요합니다: " + ", ".join(missing_translation_packages))
+        if st.button("캡션 번역 패키지 설치", type="primary"):
+            with st.status("필요한 패키지를 설치하는 중입니다. 처음 실행이면 시간이 걸릴 수 있습니다.", expanded=True) as status:
+                install_result = install_video_translation_requirements(ROOT)
+                st.code(install_result["command"], language="powershell")
+                if install_result["output"]:
+                    st.code(str(install_result["output"])[-12000:], language="text")
+                if install_result["ok"]:
+                    status.update(label="설치 완료. 페이지를 다시 실행합니다.", state="complete")
+                    st.rerun()
+                else:
+                    status.update(label="설치 실패", state="error")
+                    st.error(install_result["error"])
+                    st.stop()
 
 st.markdown("""
 ### 사용 흐름
