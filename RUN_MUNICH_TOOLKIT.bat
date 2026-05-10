@@ -37,11 +37,17 @@ echo [SETUP] Installing dashboard requirements...
 "%VENV%\Scripts\python.exe" -m pip install -r "%ROOT%requirements_dashboard.txt"
 
 echo.
+echo [SETUP] Closing any existing Streamlit server on port 8501...
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr ":8501" ^| findstr "LISTENING"') do (
+    taskkill /PID %%P /F >nul 2>nul
+)
+
+echo.
 echo Dashboard will open at http://localhost:8501
 echo If the browser does not open, copy that address manually.
 echo.
 
 cd /d "%APP_DIR%"
-"%VENV%\Scripts\python.exe" -m streamlit run app.py
+"%VENV%\Scripts\python.exe" -m streamlit run app.py --server.port 8501 --server.headless false --browser.gatherUsageStats false
 
 pause

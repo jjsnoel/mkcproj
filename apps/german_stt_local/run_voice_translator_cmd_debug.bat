@@ -27,6 +27,6 @@ pause
 
 call ".venv\Scripts\activate.bat"
 python --version
-python -m streamlit run app.py
+python -m streamlit run app.py --server.port 8502 --server.headless false --browser.gatherUsageStats false
 
 pause

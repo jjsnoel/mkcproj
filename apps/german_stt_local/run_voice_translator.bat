@@ -34,9 +34,9 @@ if errorlevel 1 (
 
 echo.
 echo Streamlit 실행...
-echo 브라우저가 안 열리면 주소창에 http://localhost:8501 을 입력하세요.
+echo 브라우저가 안 열리면 주소창에 http://localhost:8502 을 입력하세요.
 echo.
-python -m streamlit run app.py
+python -m streamlit run app.py --server.port 8502 --server.headless false --browser.gatherUsageStats false
 
 echo.
 echo Streamlit이 종료되었습니다.

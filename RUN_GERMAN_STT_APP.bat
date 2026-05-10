@@ -13,5 +13,6 @@ if not exist "%VENV%\Scripts\python.exe" (
     exit /b 1
 )
 
-"%VENV%\Scripts\python.exe" -m streamlit run app.py
+echo German STT app will open at http://localhost:8502
+"%VENV%\Scripts\python.exe" -m streamlit run app.py --server.port 8502 --server.headless false --browser.gatherUsageStats false
 pause
