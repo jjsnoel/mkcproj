@@ -49,6 +49,90 @@ IMAGE_EXTENSIONS = {
     ".heif",
 }
 
+MONTH_ALIASES = {
+    "jan": 1,
+    "january": 1,
+    "januar": 1,
+    "janvier": 1,
+    "enero": 1,
+    "gennaio": 1,
+    "janeiro": 1,
+    "feb": 2,
+    "february": 2,
+    "februar": 2,
+    "fevrier": 2,
+    "février": 2,
+    "febrero": 2,
+    "febbraio": 2,
+    "fevereiro": 2,
+    "mar": 3,
+    "march": 3,
+    "maerz": 3,
+    "märz": 3,
+    "mars": 3,
+    "marzo": 3,
+    "marco": 3,
+    "março": 3,
+    "apr": 4,
+    "april": 4,
+    "avril": 4,
+    "abril": 4,
+    "aprile": 4,
+    "may": 5,
+    "mai": 5,
+    "mayo": 5,
+    "maggio": 5,
+    "maio": 5,
+    "jun": 6,
+    "june": 6,
+    "juni": 6,
+    "juin": 6,
+    "junio": 6,
+    "giugno": 6,
+    "junho": 6,
+    "jul": 7,
+    "july": 7,
+    "juli": 7,
+    "juillet": 7,
+    "julio": 7,
+    "luglio": 7,
+    "julho": 7,
+    "aug": 8,
+    "august": 8,
+    "aout": 8,
+    "août": 8,
+    "agosto": 8,
+    "sep": 9,
+    "sept": 9,
+    "september": 9,
+    "septembre": 9,
+    "septiembre": 9,
+    "settembre": 9,
+    "setembro": 9,
+    "oct": 10,
+    "october": 10,
+    "okt": 10,
+    "oktober": 10,
+    "octobre": 10,
+    "octubre": 10,
+    "ottobre": 10,
+    "outubro": 10,
+    "nov": 11,
+    "november": 11,
+    "novembre": 11,
+    "noviembre": 11,
+    "novembro": 11,
+    "dec": 12,
+    "december": 12,
+    "dez": 12,
+    "dezember": 12,
+    "decembre": 12,
+    "décembre": 12,
+    "diciembre": 12,
+    "dicembre": 12,
+    "dezembro": 12,
+}
+
 MASTER_HEADERS = [
     "date",
     "year",
@@ -358,11 +442,117 @@ def natural_key(path: Path) -> list[object]:
     return [int(part) if part.isdigit() else part for part in parts]
 
 
-def parse_date(date_text: str):
+def _valid_date(year: int, month: int, day: int):
+    if year < min(YEARS) or year > max(YEARS):
+        return None
     try:
-        return datetime.strptime(date_text, "%Y-%m-%d").date()
-    except ValueError as exc:
-        raise ArchiveError("Date must use YYYY-MM-DD format, for example 2024-12-15.") from exc
+        return datetime(year, month, day).date()
+    except ValueError:
+        return None
+
+
+def _normalize_date_text(date_text: str) -> str:
+    normalized = unicodedata.normalize("NFKC", date_text).strip().lower()
+    normalized = normalized.replace(",", " ")
+    normalized = re.sub(r"(\d+)(st|nd|rd|th)\b", r"\1", normalized)
+    normalized = re.sub(r"\b(\d{1,2})\s*(일|월|년)\b", r"\1 \2", normalized)
+    normalized = re.sub(r"([가-힣])", r" \1 ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized)
+    return normalized.strip()
+
+
+def _ascii_fold(text: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", text)
+    return "".join(char for char in decomposed if not unicodedata.combining(char))
+
+
+def _month_number(token: str) -> int | None:
+    compact = token.rstrip(".")
+    return MONTH_ALIASES.get(compact) or MONTH_ALIASES.get(_ascii_fold(compact))
+
+
+def _parse_numeric_date(normalized: str):
+    numbers = [int(value) for value in re.findall(r"\d+", normalized)]
+    if len(numbers) < 3:
+        return None
+
+    first, second, third = numbers[:3]
+
+    if first >= 1000:
+        return _valid_date(first, second, third)
+
+    if third >= 1000:
+        year = third
+        if first > 12 and second <= 12:
+            return _valid_date(year, second, first)
+        if second > 12 and first <= 12:
+            return _valid_date(year, first, second)
+
+        month_first = _valid_date(year, first, second)
+        day_first = _valid_date(year, second, first)
+        if month_first:
+            return month_first
+        return day_first
+
+    return None
+
+
+def _parse_named_month_date(normalized: str):
+    tokens = re.findall(r"[^\W\d_]+|\d+", normalized, flags=re.UNICODE)
+    month_index = None
+    month = None
+
+    for index, token in enumerate(tokens):
+        month_candidate = _month_number(token)
+        if month_candidate:
+            month_index = index
+            month = month_candidate
+            break
+
+    if month_index is None or month is None:
+        return None
+
+    numeric_tokens = [(index, int(token)) for index, token in enumerate(tokens) if token.isdigit()]
+    years = [(index, value) for index, value in numeric_tokens if value >= 1000]
+    if not years:
+        return None
+
+    year_index, year = years[0]
+    day_candidates = [
+        value
+        for index, value in numeric_tokens
+        if index != year_index and 1 <= value <= 31
+    ]
+    if not day_candidates:
+        return None
+
+    before_month = [
+        value
+        for index, value in numeric_tokens
+        if index < month_index and index != year_index and 1 <= value <= 31
+    ]
+    after_month = [
+        value
+        for index, value in numeric_tokens
+        if index > month_index and index != year_index and 1 <= value <= 31
+    ]
+    day = before_month[-1] if before_month else after_month[0] if after_month else day_candidates[0]
+    return _valid_date(year, month, day)
+
+
+def parse_date(date_text: str):
+    normalized = _normalize_date_text(date_text)
+    if not normalized:
+        raise ArchiveError("게시일을 입력하세요.")
+
+    parsed = _parse_named_month_date(normalized) or _parse_numeric_date(normalized)
+    if parsed:
+        return parsed
+
+    raise ArchiveError(
+        "게시일을 이해하지 못했습니다. 예: 2024-12-15, 2024년 12월 15일, "
+        "Dec 15 2024, 15 December 2024, 15.12.2024"
+    )
 
 
 def ensure_csv(path: Path, headers: list[str]) -> None:
@@ -797,7 +987,7 @@ def command_init(args: argparse.Namespace) -> int:
 def command_new_post(args: argparse.Namespace) -> int:
     archive_root = init_archive(args.archive_root)
 
-    date_text = args.date or prompt_text("Post date (YYYY-MM-DD)", required=True)
+    date_text = args.date or prompt_text("Post date", required=True)
     date_obj = parse_date(date_text)
     title = args.title or prompt_text("Post title in English", required=True)
     source_url = args.url if args.url is not None else prompt_text("Source URL", required=False)
@@ -1129,7 +1319,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.set_defaults(func=command_init)
 
     new_post = subparsers.add_parser("new-post", help="Create a new source-of-truth post folder.")
-    new_post.add_argument("--date", help="Post date in YYYY-MM-DD format.")
+    new_post.add_argument("--date", help="Post date, for example 2024-12-15, 2024년 12월 15일, or Dec 15 2024.")
     new_post.add_argument("--title", help="Short English title for the post.")
     new_post.add_argument("--url", help="Source Facebook URL.")
     new_post.add_argument("--images", help="Image file or folder containing manually saved images.")

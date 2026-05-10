@@ -179,7 +179,11 @@ with st.expander("현재 인박스 이미지", expanded=True):
 
 st.subheader("새 게시물로 정리")
 
-post_date = st.text_input("게시일 (YYYY-MM-DD)", value="")
+post_date = st.text_input(
+    "게시일",
+    value="",
+    placeholder="예: 2024년 12월 15일, Dec 15 2024, 15.12.2024",
+)
 caption_text = st.text_area("원문 캡션 (없으면 비워두기)", height=160)
 computed_title = default_title(caption_text, len(images))
 post_title = st.text_input("게시물 제목", value=computed_title)
@@ -200,7 +204,7 @@ if process_btn:
     elif not archive_root.exists():
         st.error(f"아카이브 루트가 없습니다: {archive_root}")
     elif not post_date.strip():
-        st.error("게시일을 YYYY-MM-DD 형식으로 입력하세요.")
+        st.error("게시일을 입력하세요.")
     elif not images:
         st.warning("처리할 인박스 이미지가 없습니다.")
     else:
