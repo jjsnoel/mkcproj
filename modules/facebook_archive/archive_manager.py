@@ -351,6 +351,9 @@ class ArchiveError(Exception):
     """Raised for clear user-facing archive errors."""
 
 
+CAPTION_TRANSLATION_PENDING_MARKER = "[자동 번역 미실행]"
+
+
 def script_dir() -> Path:
     return Path(__file__).resolve().parent
 
@@ -648,10 +651,12 @@ def translate_caption_to_korean(text: str, source_lang: str = "de") -> str:
     try:
         from local_translator import DEFAULT_MODEL, LocalNLLBTranslator  # type: ignore
     except Exception as exc:
-        raise ArchiveError(
+        return (
+            f"{CAPTION_TRANSLATION_PENDING_MARKER}\n"
             "캡션 한국어 번역 모듈을 불러오지 못했습니다. "
-            "먼저 SETUP_VIDEO_STT_ONCE.bat를 실행해 번역 패키지를 설치하세요."
-        ) from exc
+            "먼저 SETUP_VIDEO_STT_ONCE.bat를 실행한 뒤 대시보드에서 '빈 한국어 캡션 다시 번역'을 눌러주세요.\n\n"
+            f"원문:\n{compact}"
+        )
 
     try:
         translator = LocalNLLBTranslator(model_name=DEFAULT_MODEL)
@@ -662,7 +667,11 @@ def translate_caption_to_korean(text: str, source_lang: str = "de") -> str:
             batch_size=1,
         )[0]
     except Exception as exc:
-        raise ArchiveError(f"캡션 한국어 번역에 실패했습니다: {exc}") from exc
+        return (
+            f"{CAPTION_TRANSLATION_PENDING_MARKER}\n"
+            f"캡션 한국어 번역에 실패했습니다: {exc}\n\n"
+            f"원문:\n{compact}"
+        )
 
     return translated.strip()
 
@@ -680,7 +689,8 @@ def fill_missing_korean_captions(archive_root: str | Path, source_lang: str = "d
             continue
 
         korean_path = caption_path.with_name("caption_ko.txt")
-        if korean_path.exists() and read_text_safely(korean_path).strip():
+        current_korean_text = read_text_safely(korean_path) if korean_path.exists() else ""
+        if current_korean_text.strip() and CAPTION_TRANSLATION_PENDING_MARKER not in current_korean_text:
             continue
 
         korean_text = translate_caption_to_korean(caption_text, source_lang)
@@ -771,6 +781,9 @@ def archive_inbox_post(
 
     has_caption = bool(final_caption_text.strip())
     korean_caption_text = translate_caption_to_korean(final_caption_text, caption_source_lang) if has_caption else ""
+    errors: list[str] = []
+    if CAPTION_TRANSLATION_PENDING_MARKER in korean_caption_text:
+        errors.append("캡션 한국어 번역은 아직 완료되지 않았습니다. SETUP_VIDEO_STT_ONCE.bat 실행 후 재번역 버튼을 사용하세요.")
 
     year_dir = root / "01_ORIGINAL_BY_YEAR" / str(date_obj.year)
     year_dir.mkdir(parents=True, exist_ok=True)
@@ -850,7 +863,7 @@ def archive_inbox_post(
         "master_index": str(master_index_path),
         "index_path": str(master_index_path),
         "copied_images": [relative_to_archive(path, root) for path in copied_images],
-        "errors": [],
+        "errors": errors,
     }
 
 
@@ -1093,6 +1106,9 @@ def command_new_post(args: argparse.Namespace) -> int:
     has_caption = caption_file is not None
     caption_text = read_text_safely(caption_file) if has_caption else ""
     korean_caption_text = translate_caption_to_korean(caption_text, caption_source_lang) if has_caption else ""
+    errors: list[str] = []
+    if CAPTION_TRANSLATION_PENDING_MARKER in korean_caption_text:
+        errors.append("Caption Korean translation is pending. Run SETUP_VIDEO_STT_ONCE.bat, then rerun translation.")
 
     year_dir = archive_root / "01_ORIGINAL_BY_YEAR" / str(date_obj.year)
     year_dir.mkdir(parents=True, exist_ok=True)
@@ -1157,6 +1173,8 @@ def command_new_post(args: argparse.Namespace) -> int:
 
     print(f"Created post folder: {post_folder}")
     print(f"Copied {len(copied_images)} image(s).")
+    for error in errors:
+        print(f"Warning: {error}")
     print("Original source files were not moved or deleted.")
     return 0
 
