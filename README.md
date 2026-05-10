@@ -52,7 +52,7 @@ http://localhost:8501
 
 ## 독일어 STT 기능 준비
 
-대시보드 자체는 가볍게 실행되지만, 독일어 영상 자막 기능은 Whisper/Transformers가 필요합니다. 처음 한 번만 실행하세요.
+대시보드 자체는 가볍게 실행되지만, 독일어 영상 자막 기능과 캡션 한국어 번역 기능은 Whisper/Transformers가 필요합니다. 처음 한 번만 실행하세요.
 
 ```text
 SETUP_VIDEO_STT_ONCE.bat

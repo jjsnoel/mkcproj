@@ -153,6 +153,36 @@ col_b.metric("Archive Exists", "yes" if archive_root.exists() else "no")
 col_c.metric("Manager Exists", "yes" if (manager_dir / "archive_manager.py").exists() else "no")
 col_d.metric("Clear Inbox", "yes" if clear_inbox else "no")
 
+repair_lang_col, repair_col, _ = st.columns([1, 1, 2])
+with repair_lang_col:
+    repair_caption_source_lang = st.selectbox(
+        "재번역 원문 언어",
+        ["de", "en", "ko"],
+        index=0,
+        format_func=lambda value: {"de": "독일어", "en": "영어", "ko": "한국어"}[value],
+    )
+with repair_col:
+    repair_captions = st.button("빈 한국어 캡션 다시 번역", use_container_width=True)
+
+if repair_captions:
+    if archive_manager is None:
+        st.error("archive_manager.py를 먼저 불러와야 합니다.")
+    else:
+        try:
+            repaired = archive_manager.fill_missing_korean_captions(
+                archive_root,
+                source_lang=repair_caption_source_lang,
+            )
+        except Exception as exc:
+            st.error(f"캡션 재번역 실패: {exc}")
+            st.exception(exc)
+        else:
+            if repaired:
+                st.success(f"{len(repaired)}개 한국어 캡션을 채웠습니다.")
+                st.dataframe(pd.DataFrame({"updated": repaired}), use_container_width=True, hide_index=True)
+            else:
+                st.info("채울 빈 한국어 캡션이 없습니다.")
+
 with st.expander("현재 인박스 이미지", expanded=True):
     if not (archive_root / "00_INBOX" / "images").exists():
         st.warning("00_INBOX/images 폴더가 없습니다. 아카이브 루트 경로를 확인하세요.")
@@ -185,6 +215,12 @@ post_date = st.text_input(
     placeholder="예: 2024년 12월 15일, Dec 15 2024, 15.12.2024",
 )
 caption_text = st.text_area("원문 캡션 (없으면 비워두기)", height=160)
+caption_source_lang = st.selectbox(
+    "캡션 원문 언어",
+    ["de", "en", "ko"],
+    index=0,
+    format_func=lambda value: {"de": "독일어", "en": "영어", "ko": "한국어"}[value],
+)
 computed_title = default_title(caption_text, len(images))
 post_title = st.text_input("게시물 제목", value=computed_title)
 source_url = st.text_input("Source URL", value="TEMP_URL")
@@ -220,6 +256,7 @@ if process_btn:
                 location=location.strip(),
                 mood=mood.strip(),
                 reels_usable=reels_usable,
+                caption_source_lang=caption_source_lang,
                 clear_inbox=clear_inbox,
             )
         except Exception as exc:

@@ -626,6 +626,70 @@ def caption_summary(text: str, max_chars: int = 160) -> str:
     return compact[: max_chars - 3].rstrip() + "..."
 
 
+def translate_caption_to_korean(text: str, source_lang: str = "de") -> str:
+    compact = text.strip()
+    if not compact:
+        return ""
+
+    if re.search(r"[가-힣]", compact) and source_lang == "ko":
+        return compact
+
+    source_lang = (source_lang or "de").strip().lower()
+    if source_lang == "ko":
+        return compact
+    if source_lang not in {"de", "en"}:
+        raise ArchiveError(f"Unsupported caption source language for Korean translation: {source_lang}")
+
+    toolkit_root = script_dir().parents[1]
+    translator_dir = toolkit_root / "apps" / "german_stt_local"
+    if str(translator_dir) not in sys.path:
+        sys.path.insert(0, str(translator_dir))
+
+    try:
+        from local_translator import DEFAULT_MODEL, LocalNLLBTranslator  # type: ignore
+    except Exception as exc:
+        raise ArchiveError(
+            "캡션 한국어 번역 모듈을 불러오지 못했습니다. "
+            "먼저 SETUP_VIDEO_STT_ONCE.bat를 실행해 번역 패키지를 설치하세요."
+        ) from exc
+
+    try:
+        translator = LocalNLLBTranslator(model_name=DEFAULT_MODEL)
+        translated = translator.translate_texts(
+            [compact],
+            source_lang=source_lang,
+            target_lang="ko",
+            batch_size=1,
+        )[0]
+    except Exception as exc:
+        raise ArchiveError(f"캡션 한국어 번역에 실패했습니다: {exc}") from exc
+
+    return translated.strip()
+
+
+def fill_missing_korean_captions(archive_root: str | Path, source_lang: str = "de") -> list[str]:
+    root = Path(archive_root).expanduser().resolve()
+    original_root = root / "01_ORIGINAL_BY_YEAR"
+    if not original_root.exists():
+        return []
+
+    updated: list[str] = []
+    for caption_path in sorted(original_root.glob("*/*/caption_original.txt"), key=natural_key):
+        caption_text = read_text_safely(caption_path)
+        if not caption_text.strip():
+            continue
+
+        korean_path = caption_path.with_name("caption_ko.txt")
+        if korean_path.exists() and read_text_safely(korean_path).strip():
+            continue
+
+        korean_text = translate_caption_to_korean(caption_text, source_lang)
+        korean_path.write_text(korean_text, encoding="utf-8")
+        updated.append(relative_to_archive(korean_path, root))
+
+    return updated
+
+
 def prompt_text(label: str, default: str = "", required: bool = False) -> str:
     while True:
         suffix = f" [{default}]" if default else ""
@@ -682,6 +746,7 @@ def archive_inbox_post(
     location: str = "",
     mood: str = "",
     reels_usable: str = "maybe",
+    caption_source_lang: str = "de",
     clear_inbox: bool = False,
 ) -> dict[str, object]:
     """Archive the current 00_INBOX/images as one post and return UI-friendly results."""
@@ -694,6 +759,18 @@ def archive_inbox_post(
     safe_title = title.strip()
     if not safe_title:
         safe_title = "No Caption Photo" if len(image_sources) == 1 else "No Caption Photos"
+
+    resolved_caption_file: Path | None = Path(caption_file).expanduser().resolve() if caption_file else None
+    if resolved_caption_file and not resolved_caption_file.is_file():
+        raise ArchiveError(f"Caption path must be a text file: {resolved_caption_file}")
+
+    if resolved_caption_file:
+        final_caption_text = read_text_safely(resolved_caption_file)
+    else:
+        final_caption_text = caption_text or ""
+
+    has_caption = bool(final_caption_text.strip())
+    korean_caption_text = translate_caption_to_korean(final_caption_text, caption_source_lang) if has_caption else ""
 
     year_dir = root / "01_ORIGINAL_BY_YEAR" / str(date_obj.year)
     year_dir.mkdir(parents=True, exist_ok=True)
@@ -711,19 +788,9 @@ def archive_inbox_post(
         shutil.copy2(source, destination)
         copied_images.append(destination)
 
-    resolved_caption_file: Path | None = Path(caption_file).expanduser().resolve() if caption_file else None
-    if resolved_caption_file and not resolved_caption_file.is_file():
-        raise ArchiveError(f"Caption path must be a text file: {resolved_caption_file}")
-
-    if resolved_caption_file:
-        final_caption_text = read_text_safely(resolved_caption_file)
-    else:
-        final_caption_text = caption_text or ""
-
-    has_caption = bool(final_caption_text.strip())
     if has_caption:
         (post_folder / "caption_original.txt").write_text(final_caption_text, encoding="utf-8")
-        (post_folder / "caption_ko.txt").write_text("", encoding="utf-8")
+        (post_folder / "caption_ko.txt").write_text(korean_caption_text, encoding="utf-8")
 
     (post_folder / "source_url.txt").write_text((source_url or "").strip() + "\n", encoding="utf-8")
     (post_folder / "post_info.md").write_text(
@@ -1014,8 +1081,13 @@ def command_new_post(args: argparse.Namespace) -> int:
     location = args.location or ""
     mood = args.mood or ""
     reels_usable = args.reels_usable or "maybe"
+    caption_source_lang = args.caption_lang or "de"
 
     image_sources = gather_image_files(images_path)
+    has_caption = caption_file is not None
+    caption_text = read_text_safely(caption_file) if has_caption else ""
+    korean_caption_text = translate_caption_to_korean(caption_text, caption_source_lang) if has_caption else ""
+
     year_dir = archive_root / "01_ORIGINAL_BY_YEAR" / str(date_obj.year)
     year_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1031,11 +1103,9 @@ def command_new_post(args: argparse.Namespace) -> int:
         shutil.copy2(source, destination)
         copied_images.append(destination)
 
-    has_caption = caption_file is not None
-    caption_text = read_text_safely(caption_file) if has_caption else ""
     if has_caption:
         (post_folder / "caption_original.txt").write_text(caption_text, encoding="utf-8")
-        (post_folder / "caption_ko.txt").write_text("", encoding="utf-8")
+        (post_folder / "caption_ko.txt").write_text(korean_caption_text, encoding="utf-8")
     (post_folder / "source_url.txt").write_text((source_url or "").strip() + "\n", encoding="utf-8")
     (post_folder / "post_info.md").write_text(
         make_post_info(
@@ -1257,7 +1327,7 @@ def inbox_files(archive_root: Path, target: str) -> list[Path]:
     files: list[Path] = []
     for folder in folders:
         if folder.exists():
-            files.extend(item for item in folder.rglob("*") if item.is_file())
+            files.extend(item for item in folder.rglob("*") if item.is_file() and item.name != ".gitkeep")
     return sorted(files, key=lambda item: str(item).casefold())
 
 
@@ -1324,6 +1394,7 @@ def build_parser() -> argparse.ArgumentParser:
     new_post.add_argument("--url", help="Source Facebook URL.")
     new_post.add_argument("--images", help="Image file or folder containing manually saved images.")
     new_post.add_argument("--caption", help="Caption .txt file copied manually.")
+    new_post.add_argument("--caption-lang", choices=["de", "en", "ko"], default="de", help="Caption source language for Korean translation.")
     new_post.add_argument("--category", help="Optional category label.")
     new_post.add_argument("--event", help="Optional event name.")
     new_post.add_argument("--location", help="Optional location.")
