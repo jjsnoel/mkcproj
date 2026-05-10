@@ -1,0 +1,5 @@
+# Core dashboard requirements
+-r requirements_dashboard.txt
+
+# Heavy video STT/translation requirements are installed separately by SETUP_VIDEO_STT_ONCE.bat
+# -r requirements_video_stt.txt

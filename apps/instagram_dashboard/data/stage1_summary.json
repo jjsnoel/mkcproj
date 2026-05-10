@@ -1,0 +1,839 @@
+{
+  "archive_name": "instagram-munich.boys.choir.archive-2026-05-05-3MOZyMXS-20260505T225012Z-3-001.zip",
+  "export_root": "instagram-munich.boys.choir.archive-2026-05-05-3MOZyMXS",
+  "file_counts": {
+    "total_files": 828,
+    ".json": 197,
+    ".jpg": 566,
+    ".mp4": 64,
+    ".srt": 1
+  },
+  "uncompressed_mb": 560.63,
+  "top_directories": [
+    {
+      "dir": "media/other",
+      "files": 464,
+      "mb": 179.01
+    },
+    {
+      "dir": "your_instagram_activity/messages",
+      "files": 158,
+      "mb": 2.12
+    },
+    {
+      "dir": "media/posts",
+      "files": 110,
+      "mb": 37.37
+    },
+    {
+      "dir": "media/stories",
+      "files": 32,
+      "mb": 5.39
+    },
+    {
+      "dir": "connections/followers_and_following",
+      "files": 8,
+      "mb": 1.05
+    },
+    {
+      "dir": "your_instagram_activity/media",
+      "files": 7,
+      "mb": 0.63
+    },
+    {
+      "dir": "logged_information/past_instagram_insights",
+      "files": 5,
+      "mb": 1.23
+    },
+    {
+      "dir": "ads_information/ads_and_topics",
+      "files": 5,
+      "mb": 2.41
+    },
+    {
+      "dir": "your_instagram_activity/story_interactions",
+      "files": 5,
+      "mb": 0.21
+    },
+    {
+      "dir": "logged_information/recent_searches",
+      "files": 3,
+      "mb": 0.0
+    },
+    {
+      "dir": "preferences/settings",
+      "files": 3,
+      "mb": 0.03
+    },
+    {
+      "dir": "ads_information/instagram_ads_and_businesses",
+      "files": 3,
+      "mb": 0.03
+    },
+    {
+      "dir": "your_instagram_activity/subscriptions",
+      "files": 3,
+      "mb": 0.0
+    },
+    {
+      "dir": "your_instagram_activity/other_activity",
+      "files": 3,
+      "mb": 0.01
+    },
+    {
+      "dir": "media/archived_posts",
+      "files": 3,
+      "mb": 0.32
+    }
+  ],
+  "relationship_counts": {
+    "followers_file_count": 4331,
+    "following_file_count": 161,
+    "pending_follow_requests_count": null,
+    "recently_unfollowed_profiles_count": null
+  },
+  "content_counts": {
+    "activity_posts": 528,
+    "insight_posts": 461,
+    "insight_videos": 1,
+    "stories": 32,
+    "reel_records": 1,
+    "media_files_jpg": 566,
+    "media_files_mp4": 64,
+    "srt_files": 1
+  },
+  "date_ranges": {
+    "insights_first_kst": "2016-04-24 11:11:56",
+    "insights_last_kst": "2020-03-24 20:38:37",
+    "activity_posts_first_kst": "2017-03-25 13:28:47",
+    "activity_posts_last_kst": "2020-03-27 01:21:11"
+  },
+  "aggregate_from_per_content_insights": {
+    "likes_total": 50909,
+    "comments_total": 1352,
+    "shares_total": 0,
+    "saves_total": 417,
+    "reach_total_sum": 5888,
+    "impressions_total_sum": 6990,
+    "profile_visits_total_sum": 64,
+    "follows_total_sum": 6
+  },
+  "period_insights": {
+    "content_interactions": {
+      "기간": "Feb 4 - May 4",
+      "콘텐츠 상호 작용": "48",
+      "콘텐츠 상호 작용 델타": "+220% vs Nov 6 - Feb 3",
+      "게시물 반응": "9",
+      "게시물 반응 델타": "-40% vs Nov 6 - Feb 3",
+      "게시물 좋아요": "3",
+      "게시물 공유": "1",
+      "게시물 저장": "3",
+      "스토리 반응": "0",
+      "스토리 반응 델타": "0% vs Nov 6 - Feb 3",
+      "동영상 반응": "0",
+      "동영상 반응 델타": "0% vs Nov 6 - Feb 3",
+      "릴스 상호 작용": "39",
+      "릴스 반응 델타": "-- vs Nov 6 - Feb 3",
+      "릴스 좋아요": "31",
+      "릴스 공유": "2",
+      "릴스 저장": "4",
+      "라이브 방송 반응": "0",
+      "라이브 방송 반응 델타": "0% vs Nov 6 - Feb 3",
+      "참여한 계정": "40",
+      "참여한 계정 델타": "+1,233% vs Nov 6 - Feb 3",
+      "팔로우 유형별 참여 계정": "Followers: 75%, Non-followers: 25%",
+      "지난 기간 대비 회원님을 팔로우하지 않는 계정의 참여가 델타% 증가했습니다": "+900% vs Nov 6 - Feb 3"
+    },
+    "audience": {
+      "기간": "Feb 4 - May 4",
+      "팔로워": "4,431",
+      "팔로워 델타": "-0.3% vs Nov 6 - Feb 3",
+      "팔로우": "8",
+      "팔로우 취소": "21",
+      "전체 팔로워": "-13",
+      "도시별 팔로워 비율": "Seoul: 4.2%, Munich: 1.8%, Busan: 0.8%, Jakarta: 0.7%, Hong Kong: 0.7%",
+      "국가별 팔로워 비율": "United States: 16.5%, South Korea: 12.3%, Germany: 11.1%, Italy: 4.4%, Indonesia: 4%",
+      "모든 성별의 연령별 팔로워 비율": "13-17: 0.2%, 18-24: 11%, 25-34: 32.3%, 35-44: 24.3%, 45-54: 18.4%, 55-64: 9.5%, 65+: 4%",
+      "남성 연령별 팔로워 비율": "13-17: 0.3%, 18-24: 8.4%, 25-34: 33.5%, 35-44: 26%, 45-54: 16.6%, 55-64: 10.3%, 65+: 4.6%",
+      "여성 연령별 팔로워 비율": "13-17: 0%, 18-24: 10.6%, 25-34: 25.9%, 35-44: 26.4%, 45-54: 22.5%, 55-64: 10.6%, 65+: 3.7%",
+      "총 남성 팔로워 비율": "60.7%",
+      "총 여성 팔로워 비율": "39.2%",
+      "월요일 팔로워 활동": "959",
+      "화요일 팔로워 활동": "959",
+      "수요일 팔로워 활동": "945",
+      "목요일 팔로워 활동": "951",
+      "금요일 팔로워 활동": "950",
+      "토요일 팔로워 활동": "940",
+      "일요일 팔로워 활동": "955"
+    },
+    "reach": {
+      "기간": "Feb 4 - May 4",
+      "도달한 계정": "645",
+      "도달한 계정 델타": "+184% vs Nov 6 - Feb 3",
+      "팔로워": "29.4%",
+      "팔로워가 아닌 사람": "70.6%",
+      "팔로워가 아닌 사람 델타": "You reached +116% more accounts that weren't following you compared to Nov 6 - Feb 3.",
+      "노출": "1,605",
+      "노출 델타": "+104%",
+      "프로필 방문": "94",
+      "프로필 방문 델타": "+8%",
+      "외부 링크 누름": "0",
+      "외부 링크 누름 델타": "-100%",
+      "비즈니스 주소 누름": "0",
+      "비즈니스 주소 누르기 델타": "-100%"
+    }
+  },
+  "top_hashtags_in_insight_captions": [
+    [
+      "boyschoir",
+      279
+    ],
+    [
+      "knabenchor",
+      279
+    ],
+    [
+      "chor",
+      277
+    ],
+    [
+      "뮌헨소년합창단",
+      268
+    ],
+    [
+      "choir",
+      267
+    ],
+    [
+      "münchnerknabenchor",
+      267
+    ],
+    [
+      "sing",
+      240
+    ],
+    [
+      "smile",
+      239
+    ],
+    [
+      "munich",
+      237
+    ],
+    [
+      "music",
+      237
+    ],
+    [
+      "best",
+      237
+    ],
+    [
+      "world",
+      237
+    ],
+    [
+      "boys",
+      237
+    ],
+    [
+      "clasic",
+      235
+    ],
+    [
+      "song",
+      235
+    ],
+    [
+      "boy",
+      233
+    ],
+    [
+      "angels",
+      233
+    ],
+    [
+      "sangerknaben",
+      171
+    ],
+    [
+      "慕尼黑童声合唱团",
+      113
+    ],
+    [
+      "ミュンヘン少年合唱団",
+      109
+    ],
+    [
+      "concert",
+      98
+    ],
+    [
+      "voice",
+      97
+    ],
+    [
+      "beautiful",
+      97
+    ],
+    [
+      "sängerknaben",
+      96
+    ],
+    [
+      "tour",
+      60
+    ],
+    [
+      "pop",
+      45
+    ],
+    [
+      "chorus",
+      38
+    ],
+    [
+      "brodcast",
+      33
+    ],
+    [
+      "radio",
+      33
+    ],
+    [
+      "korea",
+      33
+    ]
+  ],
+  "top_hashtags_in_activity_posts": [
+    [
+      "boyschoir",
+      5
+    ],
+    [
+      "mkc",
+      5
+    ],
+    [
+      "knabenchor",
+      5
+    ],
+    [
+      "chor",
+      5
+    ],
+    [
+      "chorus",
+      5
+    ],
+    [
+      "accapella",
+      5
+    ],
+    [
+      "muenchnerknabenchor",
+      5
+    ],
+    [
+      "소년합창단",
+      5
+    ],
+    [
+      "boysoprano",
+      4
+    ],
+    [
+      "domspatzen",
+      4
+    ],
+    [
+      "choral",
+      3
+    ],
+    [
+      "georgia",
+      2
+    ],
+    [
+      "münchnerknabenchor",
+      1
+    ],
+    [
+      "workshop",
+      1
+    ],
+    [
+      "martinlutherchurch",
+      1
+    ],
+    [
+      "choir",
+      1
+    ],
+    [
+      "vocal",
+      1
+    ],
+    [
+      "canada🇨🇦",
+      1
+    ],
+    [
+      "konzert",
+      1
+    ],
+    [
+      "gregorianchant",
+      1
+    ],
+    [
+      "magic",
+      1
+    ],
+    [
+      "flute",
+      1
+    ],
+    [
+      "omantour",
+      1
+    ],
+    [
+      "chinatour",
+      1
+    ],
+    [
+      "soloist",
+      1
+    ],
+    [
+      "jaychou",
+      1
+    ],
+    [
+      "church",
+      1
+    ],
+    [
+      "collaboration",
+      1
+    ],
+    [
+      "halloween",
+      1
+    ],
+    [
+      "travel",
+      1
+    ]
+  ],
+  "top_by_likes": [
+    {
+      "datetime_kst": "2018-09-17 22:52:56",
+      "metric": 351,
+      "likes": 351,
+      "comments": 2,
+      "shares": 0,
+      "saves": 1,
+      "reach": 58,
+      "caption_preview": "Journey to China. 중국 여정을 살펴보다, 스페인은...일단 패스~~ ㅎㅎ"
+    },
+    {
+      "datetime_kst": "2018-05-11 23:16:29",
+      "metric": 350,
+      "likes": 350,
+      "comments": 5,
+      "shares": 0,
+      "saves": 1,
+      "reach": 44,
+      "caption_preview": "A jaunt to the city, summer is near!!⛱🏄‍♂️☀️"
+    },
+    {
+      "datetime_kst": "2018-09-22 21:55:07",
+      "metric": 338,
+      "likes": 338,
+      "comments": 1,
+      "shares": 0,
+      "saves": 4,
+      "reach": 60,
+      "caption_preview": "In the escalator passage, it is even more comfortable. • 편하다기보단 색다르게 타고가는 재미가 더 큰 것 같네요"
+    },
+    {
+      "datetime_kst": "2018-05-22 04:06:39",
+      "metric": 335,
+      "likes": 335,
+      "comments": 3,
+      "shares": 0,
+      "saves": 0,
+      "reach": 44,
+      "caption_preview": "the \"Messa di Gloria\" by G. Rosini, Photo by @andreasselter 얼마전에 팔로5K를 달성했더군요. 뮈넨이들이 나날이 성장하길 바라는 마음은 한결같습니다."
+    },
+    {
+      "datetime_kst": "2018-06-30 18:11:11",
+      "metric": 325,
+      "likes": 325,
+      "comments": 10,
+      "shares": 0,
+      "saves": 3,
+      "reach": 54,
+      "caption_preview": "빨갛게 달아오른 킬리안☀️ 선탠은 좋은데 양말은 바꿔야할듯..?!ㅎㅎ 레나르는 카메라를 보는건지 폰겜에 열중 중인건지..😅"
+    },
+    {
+      "datetime_kst": "2018-06-15 11:42:53",
+      "metric": 324,
+      "likes": 324,
+      "comments": 6,
+      "shares": 0,
+      "saves": 1,
+      "reach": 49,
+      "caption_preview": "바다를 쳐다보고만 있긴 뭐하니 크루즈 함 타보공"
+    },
+    {
+      "datetime_kst": "2018-06-08 11:57:30",
+      "metric": 308,
+      "likes": 308,
+      "comments": 7,
+      "shares": 0,
+      "saves": 0,
+      "reach": 50,
+      "caption_preview": "If all the water turns into chocolate... like Charlie and the Chocolate Factory! #tbt #IbizaTour"
+    },
+    {
+      "datetime_kst": "2018-06-06 23:04:17",
+      "metric": 305,
+      "likes": 305,
+      "comments": 5,
+      "shares": 0,
+      "saves": 1,
+      "reach": 42,
+      "caption_preview": "Towel... check, swimsuit... check, euh... Where is the ticket?!...(I was kidding) #IbizaTour2017"
+    },
+    {
+      "datetime_kst": "2017-04-22 12:42:15",
+      "metric": 281,
+      "likes": 281,
+      "comments": 11,
+      "shares": null,
+      "saves": 2,
+      "reach": null,
+      "caption_preview": "\"Wir sind zurück von unserer Chinatournee, mit einem Koffer voller unvergesslicher Erlebnisse. Mit im Gepäck viele Aufnahmen von der tollen Reise sowie unseren bestens besuchten Ko"
+    },
+    {
+      "datetime_kst": "2018-11-13 12:33:37",
+      "metric": 280,
+      "likes": 280,
+      "comments": 1,
+      "shares": 0,
+      "saves": 2,
+      "reach": 122,
+      "caption_preview": "점심시간에 강의 듣는 눈빛... . . #흐릿한#초점#멍텅구리#눈빛#근데이거공연중인데#집중하고있는거맞지?#끝나고뭐먹을지#고민하나"
+    }
+  ],
+  "top_by_reach": [
+    {
+      "datetime_kst": "2020-03-24 20:38:37",
+      "metric": 255,
+      "likes": 169,
+      "comments": 4,
+      "shares": 0,
+      "saves": 2,
+      "reach": 255,
+      "caption_preview": "I will introduce what happened in Canada tour. The barbecue, swimming, Niagara and neo-gothic cathedral...etc Look forward to the next upload. #boyschoir #mkc #knabenchor #chor #ch"
+    },
+    {
+      "datetime_kst": "2017-12-05 12:31:25",
+      "metric": 226,
+      "likes": 238,
+      "comments": 11,
+      "shares": 0,
+      "saves": 10,
+      "reach": 226,
+      "caption_preview": "중국 \"Hunan Educational Television\" 에서... #화이팅화요일 맑고 청아한 목소리의 주인공! 뮌헨소년합창단의 독보적 솔리스트 조엘과 마르셀의 중국투어 엿보기!!👼 @graf_zu_joedl @marcel_h_2710 05.10.2017"
+    },
+    {
+      "datetime_kst": "2017-11-08 08:53:32",
+      "metric": 218,
+      "likes": 231,
+      "comments": 7,
+      "shares": 0,
+      "saves": 17,
+      "reach": 218,
+      "caption_preview": "Pont chinois par \"Hunan Educational Television\" Vérifiez la vidéo complète !! Lien en bio. Et suivez nos impressionnants solistes @graf_zu_joedl et @marcel_h_2710 05.10.2017"
+    },
+    {
+      "datetime_kst": "2020-03-22 00:54:17",
+      "metric": 197,
+      "likes": 135,
+      "comments": 0,
+      "shares": 0,
+      "saves": 4,
+      "reach": 197,
+      "caption_preview": "La répétition avec Georgia Boy Choir. J'espère que #covid19 prendra bientôt fin dans notre pays d'amis. #boyschoir #mkc #knabenchor #chor #choir #chorus #accapella #vocal #muenchne"
+    },
+    {
+      "datetime_kst": "2020-02-29 23:37:59",
+      "metric": 197,
+      "likes": 184,
+      "comments": 2,
+      "shares": 0,
+      "saves": 6,
+      "reach": 197,
+      "caption_preview": "On the way to Oman. David, Dean, Magnus #Magic #Flute #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boysoprano #choral #omantour"
+    },
+    {
+      "datetime_kst": "2020-03-03 00:16:53",
+      "metric": 192,
+      "likes": 180,
+      "comments": 7,
+      "shares": 0,
+      "saves": 6,
+      "reach": 192,
+      "caption_preview": "Dean, David, Magnus rehearsing at the Royal Opera House Muscat The #Magic #Flute #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boyso"
+    },
+    {
+      "datetime_kst": "2020-02-22 16:42:50",
+      "metric": 179,
+      "likes": 213,
+      "comments": 4,
+      "shares": 0,
+      "saves": 7,
+      "reach": 179,
+      "caption_preview": "@muenchner__knabenchor was invited by the @georgiaboychoir and had its first stage in the United States. The upload continues...(1) #boyschoir #mkc #knabenchor #chor #domspatzen #c"
+    },
+    {
+      "datetime_kst": "2020-03-17 19:53:42",
+      "metric": 158,
+      "likes": 166,
+      "comments": 7,
+      "shares": 0,
+      "saves": 4,
+      "reach": 158,
+      "caption_preview": "First stepped on the America, atlanta. I hope the corona virus will alleviate as soon as possible and meet Georgia Boy Choir again in Munich! Stay safe against #covid19 #boyschoir "
+    },
+    {
+      "datetime_kst": "2020-03-14 01:06:59",
+      "metric": 145,
+      "likes": 129,
+      "comments": 1,
+      "shares": 0,
+      "saves": 2,
+      "reach": 145,
+      "caption_preview": "Matthew Passion's Cast Information. Soprano: Sibylla Rubens. Alto: Marie Henriette Reinhold. Tenor: Bernhard Berchtold(Evangelist), Mirko Ludwig(Arien) Bass: Ludwig Mittelhammer(Ch"
+    },
+    {
+      "datetime_kst": "2018-01-16 06:19:02",
+      "metric": 143,
+      "likes": 243,
+      "comments": 4,
+      "shares": 0,
+      "saves": 7,
+      "reach": 143,
+      "caption_preview": "중국 방송녹화 대기실에서, 코난 넥타이의 조엘과 타탄. 이 친구들 특히 얼굴 팔리는거 좋아합니다(?)....태그했으니 팔로꾺꾺 야옹이도 꾹꾹 비둘기는 구구"
+    }
+  ],
+  "top_by_saves": [
+    {
+      "datetime_kst": "2017-11-08 08:53:32",
+      "metric": 17,
+      "likes": 231,
+      "comments": 7,
+      "shares": 0,
+      "saves": 17,
+      "reach": 218,
+      "caption_preview": "Pont chinois par \"Hunan Educational Television\" Vérifiez la vidéo complète !! Lien en bio. Et suivez nos impressionnants solistes @graf_zu_joedl et @marcel_h_2710 05.10.2017"
+    },
+    {
+      "datetime_kst": "2017-12-05 12:31:25",
+      "metric": 10,
+      "likes": 238,
+      "comments": 11,
+      "shares": 0,
+      "saves": 10,
+      "reach": 226,
+      "caption_preview": "중국 \"Hunan Educational Television\" 에서... #화이팅화요일 맑고 청아한 목소리의 주인공! 뮌헨소년합창단의 독보적 솔리스트 조엘과 마르셀의 중국투어 엿보기!!👼 @graf_zu_joedl @marcel_h_2710 05.10.2017"
+    },
+    {
+      "datetime_kst": "2017-12-30 15:21:56",
+      "metric": 8,
+      "likes": 199,
+      "comments": 5,
+      "shares": 0,
+      "saves": 8,
+      "reach": 67,
+      "caption_preview": "Unsere neue CD ist da! «Fröhliche Weihnacht» Die CDs des MÜNCHNER KNABENCHORES können Sie bestellen unter post@muenchnerknabenchor.de Kosten: 12,00 Euro zzgl. 2 Euro Versand"
+    },
+    {
+      "datetime_kst": "2017-11-14 19:21:27",
+      "metric": 8,
+      "likes": 219,
+      "comments": 4,
+      "shares": 0,
+      "saves": 8,
+      "reach": 110,
+      "caption_preview": "#repost @rb.wa #tbt #chinatour"
+    },
+    {
+      "datetime_kst": "2017-11-01 12:14:42",
+      "metric": 8,
+      "likes": 211,
+      "comments": 9,
+      "shares": 0,
+      "saves": 8,
+      "reach": 22,
+      "caption_preview": "Nous avons eu beaucoup d'événements le week-end dernier. Après une grande performance dans une belle église sur le lac Chiemsee, les chanteurs ont visité le glacier et ont été réco"
+    },
+    {
+      "datetime_kst": "2016-08-07 19:55:23",
+      "metric": 8,
+      "likes": 47,
+      "comments": 0,
+      "shares": null,
+      "saves": 8,
+      "reach": null,
+      "caption_preview": "Video by Wolgu30 . . . . . . #münchnerknabenchor #choir #chor #knabenchor #sangerknaben #boyschoir #뮌헨소년합창단 #慕尼黑童声合唱团 #ミュンヘン少年合唱団 #munich #boy #sing #clasic #music #best #world #bo"
+    },
+    {
+      "datetime_kst": "2020-02-22 16:42:50",
+      "metric": 7,
+      "likes": 213,
+      "comments": 4,
+      "shares": 0,
+      "saves": 7,
+      "reach": 179,
+      "caption_preview": "@muenchner__knabenchor was invited by the @georgiaboychoir and had its first stage in the United States. The upload continues...(1) #boyschoir #mkc #knabenchor #chor #domspatzen #c"
+    },
+    {
+      "datetime_kst": "2018-01-16 06:19:02",
+      "metric": 7,
+      "likes": 243,
+      "comments": 4,
+      "shares": 0,
+      "saves": 7,
+      "reach": 143,
+      "caption_preview": "중국 방송녹화 대기실에서, 코난 넥타이의 조엘과 타탄. 이 친구들 특히 얼굴 팔리는거 좋아합니다(?)....태그했으니 팔로꾺꾺 야옹이도 꾹꾹 비둘기는 구구"
+    },
+    {
+      "datetime_kst": "2020-03-10 18:48:29",
+      "metric": 6,
+      "likes": 165,
+      "comments": 0,
+      "shares": 0,
+      "saves": 6,
+      "reach": 126,
+      "caption_preview": "Even today, no piece of music history fascinates listeners and performers like Johann Sebastian Bach's Matthäus fashion. The annual performance at the Philharmonic has already been"
+    },
+    {
+      "datetime_kst": "2020-03-03 00:16:53",
+      "metric": 6,
+      "likes": 180,
+      "comments": 7,
+      "shares": 0,
+      "saves": 6,
+      "reach": 192,
+      "caption_preview": "Dean, David, Magnus rehearsing at the Royal Opera House Muscat The #Magic #Flute #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boyso"
+    }
+  ],
+  "top_by_shares": [
+    {
+      "datetime_kst": "2020-03-24 20:38:37",
+      "metric": 0,
+      "likes": 169,
+      "comments": 4,
+      "shares": 0,
+      "saves": 2,
+      "reach": 255,
+      "caption_preview": "I will introduce what happened in Canada tour. The barbecue, swimming, Niagara and neo-gothic cathedral...etc Look forward to the next upload. #boyschoir #mkc #knabenchor #chor #ch"
+    },
+    {
+      "datetime_kst": "2020-03-22 00:54:17",
+      "metric": 0,
+      "likes": 135,
+      "comments": 0,
+      "shares": 0,
+      "saves": 4,
+      "reach": 197,
+      "caption_preview": "La répétition avec Georgia Boy Choir. J'espère que #covid19 prendra bientôt fin dans notre pays d'amis. #boyschoir #mkc #knabenchor #chor #choir #chorus #accapella #vocal #muenchne"
+    },
+    {
+      "datetime_kst": "2020-03-17 19:53:42",
+      "metric": 0,
+      "likes": 166,
+      "comments": 7,
+      "shares": 0,
+      "saves": 4,
+      "reach": 158,
+      "caption_preview": "First stepped on the America, atlanta. I hope the corona virus will alleviate as soon as possible and meet Georgia Boy Choir again in Munich! Stay safe against #covid19 #boyschoir "
+    },
+    {
+      "datetime_kst": "2020-03-14 01:06:59",
+      "metric": 0,
+      "likes": 129,
+      "comments": 1,
+      "shares": 0,
+      "saves": 2,
+      "reach": 145,
+      "caption_preview": "Matthew Passion's Cast Information. Soprano: Sibylla Rubens. Alto: Marie Henriette Reinhold. Tenor: Bernhard Berchtold(Evangelist), Mirko Ludwig(Arien) Bass: Ludwig Mittelhammer(Ch"
+    },
+    {
+      "datetime_kst": "2020-03-10 18:48:29",
+      "metric": 0,
+      "likes": 165,
+      "comments": 0,
+      "shares": 0,
+      "saves": 6,
+      "reach": 126,
+      "caption_preview": "Even today, no piece of music history fascinates listeners and performers like Johann Sebastian Bach's Matthäus fashion. The annual performance at the Philharmonic has already been"
+    },
+    {
+      "datetime_kst": "2020-03-07 00:51:18",
+      "metric": 0,
+      "likes": 165,
+      "comments": 4,
+      "shares": 0,
+      "saves": 4,
+      "reach": 126,
+      "caption_preview": "Spring show schedule, @muenchner__knabenchor will have a concert with the Munich Philharmonic. On April 10, Matthew Passion...On Saturday the 18th, Carmina Burana. #boyschoir #mkc "
+    },
+    {
+      "datetime_kst": "2020-03-03 00:16:53",
+      "metric": 0,
+      "likes": 180,
+      "comments": 7,
+      "shares": 0,
+      "saves": 6,
+      "reach": 192,
+      "caption_preview": "Dean, David, Magnus rehearsing at the Royal Opera House Muscat The #Magic #Flute #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boyso"
+    },
+    {
+      "datetime_kst": "2020-02-29 23:37:59",
+      "metric": 0,
+      "likes": 184,
+      "comments": 2,
+      "shares": 0,
+      "saves": 6,
+      "reach": 197,
+      "caption_preview": "On the way to Oman. David, Dean, Magnus #Magic #Flute #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boysoprano #choral #omantour"
+    },
+    {
+      "datetime_kst": "2020-02-28 00:15:51",
+      "metric": 0,
+      "likes": 184,
+      "comments": 4,
+      "shares": 0,
+      "saves": 5,
+      "reach": 102,
+      "caption_preview": "In the famous market street, China is famous for tea. Perfect as a gift. #boyschoir #mkc #knabenchor #chor #domspatzen #chorus #accapella #muenchnerknabenchor #소년합창단 #boysoprano #c"
+    },
+    {
+      "datetime_kst": "2020-02-24 00:30:41",
+      "metric": 0,
+      "likes": 173,
+      "comments": 4,
+      "shares": 0,
+      "saves": 2,
+      "reach": 77,
+      "caption_preview": "📸Photo: @promax_8 Did you know that Coca-Cola World is only in Atlanta? If you come here, you can see the history of Coke, who is 130 years old. When you first enter, you can taste"
+    }
+  ],
+  "top_by_engagement_per_reach": []
+}

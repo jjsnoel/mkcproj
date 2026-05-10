@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+apps/instagram_dashboard/.env
+apps/german_stt_local/input/uploaded/*
+!apps/german_stt_local/input/uploaded/.gitkeep
+apps/german_stt_local/output_gpu/*
+!apps/german_stt_local/output_gpu/.gitkeep
+modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/images/*
+!modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/images/.gitkeep
+modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/captions/*
+!modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/captions/.gitkeep
+.DS_Store
+Thumbs.db
