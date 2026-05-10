@@ -53,6 +53,35 @@ def default_title(caption: str, image_count: int) -> str:
     return "No Caption Photo" if image_count == 1 else "No Caption Photos"
 
 
+def unique_destination(images_dir: Path, filename: str) -> Path:
+    original = Path(filename)
+    stem = original.stem or "uploaded_image"
+    suffix = original.suffix.lower()
+    candidate = images_dir / f"{stem}{suffix}"
+    counter = 2
+    while candidate.exists():
+        candidate = images_dir / f"{stem}_{counter}{suffix}"
+        counter += 1
+    return candidate
+
+
+def save_uploaded_images(archive_root: Path, uploaded_files, image_exts: set[str]) -> list[Path]:
+    images_dir = archive_root / "00_INBOX" / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    saved_paths: list[Path] = []
+    for uploaded_file in uploaded_files:
+        suffix = Path(uploaded_file.name).suffix.lower()
+        if suffix not in image_exts:
+            raise ValueError(f"지원하지 않는 이미지 형식입니다: {uploaded_file.name}")
+
+        destination = unique_destination(images_dir, uploaded_file.name)
+        destination.write_bytes(uploaded_file.getbuffer())
+        saved_paths.append(destination)
+
+    return saved_paths
+
+
 def read_master_index(archive_root: Path) -> pd.DataFrame:
     index_path = archive_root / "03_INDEX" / "master_index.csv"
     if not index_path.exists():
@@ -87,6 +116,36 @@ st.markdown("""
 3. 버튼을 누르면 `01_ORIGINAL_BY_YEAR/YYYY/post/images/001.jpg` 구조로 정리됩니다.
 """)
 st.code(str(archive_root / "00_INBOX" / "images"), language="text")
+
+uploaded_images = st.file_uploader(
+    "이미지 업로드",
+    type=sorted(ext.lstrip(".") for ext in image_exts),
+    accept_multiple_files=True,
+    help="선택한 이미지는 00_INBOX/images에 저장됩니다.",
+)
+
+upload_col, _ = st.columns([1, 3])
+with upload_col:
+    save_uploads = st.button(
+        "업로드 이미지를 인박스에 저장",
+        disabled=not uploaded_images,
+        use_container_width=True,
+    )
+
+if save_uploads and uploaded_images:
+    try:
+        saved = save_uploaded_images(archive_root, uploaded_images, image_exts)
+    except Exception as exc:
+        st.error(f"업로드 저장 실패: {exc}")
+        st.exception(exc)
+    else:
+        st.success(f"{len(saved)}개 이미지를 인박스에 저장했습니다.")
+        st.dataframe(
+            pd.DataFrame({"saved_to": [str(path) for path in saved]}),
+            use_container_width=True,
+            hide_index=True,
+        )
+        images = inbox_images(archive_root, image_exts)
 
 col_a, col_b, col_c, col_d = st.columns(4)
 col_a.metric("Inbox Images", len(images))
