@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import os
 import sys
 from pathlib import Path
@@ -29,10 +30,20 @@ FALLBACK_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif",
 
 def load_archive_manager(manager_dir: Path):
     manager_dir = manager_dir.expanduser().resolve()
+    module_path = manager_dir / "archive_manager.py"
+    if not module_path.exists():
+        raise FileNotFoundError(f"archive_manager.py not found: {module_path}")
+
     if str(manager_dir) not in sys.path:
         sys.path.insert(0, str(manager_dir))
-    import archive_manager  # type: ignore
 
+    module_name = f"munich_archive_manager_{abs(hash(module_path))}"
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load archive_manager.py: {module_path}")
+
+    archive_manager = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(archive_manager)
     return archive_manager
 
 
@@ -102,6 +113,8 @@ manager_dir = Path(manager_dir_text).expanduser()
 try:
     archive_manager = load_archive_manager(manager_dir)
     image_exts = set(getattr(archive_manager, "IMAGE_EXTENSIONS", FALLBACK_IMAGE_EXTS))
+    with st.sidebar.expander("Loaded archive manager", expanded=False):
+        st.code(str(Path(getattr(archive_manager, "__file__", "")).resolve()), language="text")
 except Exception as exc:
     archive_manager = None
     image_exts = FALLBACK_IMAGE_EXTS
@@ -268,14 +281,20 @@ if process_btn:
         else:
             st.success("아카이브 정리 완료")
             m1, m2, m3 = st.columns(3)
-            m1.metric("처리된 이미지 수", result.get("image_count", 0))
+            m1.metric("처리된 이미지 수", result.get("processed_images", result.get("image_count", 0)))
             m2.metric("생성된 게시물 폴더 수", result.get("created_post_folder_count", 0))
-            m3.metric("삭제된 인박스 파일", result.get("deleted_inbox_count", 0))
-            st.info(f"출력 경로: {result.get('post_folder')}")
-            st.caption(f"마스터 인덱스: {result.get('master_index')}")
+            m3.metric("삭제된 인박스 파일", result.get("deleted_inbox_files", result.get("deleted_inbox_count", 0)))
+            st.info(f"출력 경로: {result.get('created_post_folder', result.get('post_folder'))}")
+            st.caption(f"마스터 인덱스: {result.get('index_path', result.get('master_index'))}")
             copied = result.get("copied_images", [])
             if copied:
                 st.dataframe(pd.DataFrame({"copied_images": copied}), use_container_width=True, hide_index=True)
+            errors = result.get("errors", [])
+            if errors:
+                st.warning("처리 중 확인이 필요한 항목이 있습니다.")
+                st.dataframe(pd.DataFrame({"errors": errors}), use_container_width=True, hide_index=True)
+            with st.expander("처리 결과 상세", expanded=False):
+                st.json(result)
 
 st.subheader("최근 아카이브 인덱스")
 index_df = read_master_index(archive_root)

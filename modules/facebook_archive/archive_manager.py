@@ -836,15 +836,21 @@ def archive_inbox_post(
     )
 
     deleted_inbox_count = delete_inbox_files(root) if clear_inbox else 0
+    master_index_path = root / "03_INDEX" / "master_index.csv"
     return {
         "archive_root": str(root),
         "post_folder": str(post_folder),
+        "created_post_folder": str(post_folder),
         "post_folder_relative": relative_to_archive(post_folder, root),
         "image_count": len(copied_images),
+        "processed_images": len(copied_images),
         "created_post_folder_count": 1,
         "deleted_inbox_count": deleted_inbox_count,
-        "master_index": str(root / "03_INDEX" / "master_index.csv"),
+        "deleted_inbox_files": deleted_inbox_count,
+        "master_index": str(master_index_path),
+        "index_path": str(master_index_path),
         "copied_images": [relative_to_archive(path, root) for path in copied_images],
+        "errors": [],
     }
 
 
