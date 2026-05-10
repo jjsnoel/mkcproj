@@ -6,7 +6,17 @@ set "ROOT=%~dp0"
 set "APP_DIR=%ROOT%apps\instagram_dashboard"
 set "VENV=%ROOT%.venv"
 set "MUNICH_TOOLKIT_ROOT=%ROOT%"
+set "BUNDLED_PYTHON=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+set "CUDA_VISIBLE_DEVICES=0"
 
+if exist "%ROOT%.env" (
+    for /f "usebackq tokens=1,* delims==" %%A in ("%ROOT%.env") do (
+        if /i "%%A"=="DEEPL_API_KEY" if not "%%B"=="" set "DEEPL_API_KEY=%%B"
+        if /i "%%A"=="DEEPL_AUTH_KEY" if not defined DEEPL_API_KEY if not "%%B"=="" set "DEEPL_API_KEY=%%B"
+        if /i "%%A"=="DEEPL_API_PLAN" if not "%%B"=="" set "DEEPL_API_PLAN=%%B"
+        if /i "%%A"=="DEEPL_API_URL" if not "%%B"=="" set "DEEPL_API_URL=%%B"
+    )
+)
 for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_API_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
 if not defined DEEPL_API_KEY (
     for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_AUTH_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
@@ -30,6 +40,18 @@ if not exist "%VENV%\Scripts\python.exe" (
     py -3.11 -m venv "%VENV%" 2>nul
     if errorlevel 1 py -m venv "%VENV%" 2>nul
     if errorlevel 1 python -m venv "%VENV%"
+    if errorlevel 1 if exist "%BUNDLED_PYTHON%" "%BUNDLED_PYTHON%" -m venv "%VENV%"
+)
+
+if exist "%VENV%\Scripts\python.exe" (
+    "%VENV%\Scripts\python.exe" --version >nul 2>nul
+    if errorlevel 1 (
+        echo [SETUP] Repairing virtual environment...
+        py -3.11 -m venv "%VENV%" 2>nul
+        if errorlevel 1 py -m venv "%VENV%" 2>nul
+        if errorlevel 1 python -m venv "%VENV%"
+        if errorlevel 1 if exist "%BUNDLED_PYTHON%" "%BUNDLED_PYTHON%" -m venv "%VENV%"
+    )
 )
 
 if not exist "%VENV%\Scripts\python.exe" (

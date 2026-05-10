@@ -9,6 +9,7 @@ apps/german_stt_local/output_gpu/*
 !apps/german_stt_local/output_gpu/.gitkeep
 modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/images/*
 !modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/images/.gitkeep
+modules/facebook_archive/Muenchner_Knabenchor_Archive/01_ORIGINAL_BY_YEAR/**/images/*
 modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/captions/*
 !modules/facebook_archive/Muenchner_Knabenchor_Archive/00_INBOX/captions/.gitkeep
 .DS_Store

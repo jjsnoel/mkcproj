@@ -5,6 +5,23 @@ title Munich German STT App
 set "ROOT=%~dp0"
 set "VENV=%ROOT%.venv"
 set "MUNICH_TOOLKIT_ROOT=%ROOT%"
+set "CUDA_VISIBLE_DEVICES=0"
+
+if exist "%ROOT%.env" (
+    for /f "usebackq tokens=1,* delims==" %%A in ("%ROOT%.env") do (
+        if /i "%%A"=="DEEPL_API_KEY" if not "%%B"=="" set "DEEPL_API_KEY=%%B"
+        if /i "%%A"=="DEEPL_AUTH_KEY" if not defined DEEPL_API_KEY if not "%%B"=="" set "DEEPL_API_KEY=%%B"
+        if /i "%%A"=="DEEPL_API_PLAN" if not "%%B"=="" set "DEEPL_API_PLAN=%%B"
+        if /i "%%A"=="DEEPL_API_URL" if not "%%B"=="" set "DEEPL_API_URL=%%B"
+    )
+)
+for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_API_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
+if not defined DEEPL_API_KEY (
+    for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_AUTH_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
+)
+for /f "usebackq delims=" %%P in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_API_PLAN','User')"`) do if not "%%P"=="" set "DEEPL_API_PLAN=%%P"
+if defined DEEPL_API_KEY if not defined DEEPL_API_PLAN set "DEEPL_API_PLAN=free"
+
 cd /d "%ROOT%apps\german_stt_local"
 
 if not exist "%VENV%\Scripts\python.exe" (

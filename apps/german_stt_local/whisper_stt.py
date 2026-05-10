@@ -25,6 +25,7 @@ def transcribe_video(
     whisper_model_name: str = "large-v3",
     language: str = "de",
     prompt: str = "",
+    require_gpu: bool = True,
     progress: Progress | None = None,
 ) -> tuple[list[dict], dict]:
     video_path = Path(video_path)
@@ -37,7 +38,13 @@ def transcribe_video(
             "ffmpeg가 설치되어 있지 않거나 PATH에 없습니다. Whisper가 영상에서 음성을 읽으려면 ffmpeg가 필요합니다."
         )
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    cuda_available = torch.cuda.is_available()
+    if require_gpu and not cuda_available:
+        raise RuntimeError(
+            "CUDA GPU를 사용할 수 없어 STT를 중단했습니다. CPU 실행은 너무 오래 걸리므로 비활성화되어 있습니다."
+        )
+
+    device = "cuda" if cuda_available else "cpu"
     if progress:
         progress(f"Whisper 모델 로딩 중: {whisper_model_name} / 장치: {device}")
 
