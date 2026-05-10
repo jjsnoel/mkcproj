@@ -1,6 +1,20 @@
 # Munich Unified Toolkit
 
-이 폴더는 형이 말한 3가지 작업을 한 폴더로 묶은 통합본입니다.
+## VS Code에서 대시보드 실행
+
+VS Code 터미널을 프로젝트 루트에서 열고 다음 명령을 실행합니다.
+
+```powershell
+.\RUN_MUNICH_TOOLKIT.bat
+```
+
+실행 후 브라우저에서 다음 주소로 접속합니다.
+
+```text
+http://localhost:8501
+```
+
+이 폴더는 Instagram 운영 대시보드, 독일어 영상 STT/SRT 번역, Facebook 사진 아카이브 수집기를 한 곳에 묶은 통합 툴킷입니다.
 
 ## 포함 기능
 
