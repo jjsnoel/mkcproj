@@ -129,9 +129,28 @@ images = inbox_images(archive_root, image_exts)
 
 if "upload_widget_version" not in st.session_state:
     st.session_state.upload_widget_version = 0
+if "post_form_version" not in st.session_state:
+    st.session_state.post_form_version = 0
 
 if st.session_state.get("upload_flash"):
     st.success(st.session_state.pop("upload_flash"))
+if st.session_state.get("archive_flash"):
+    archive_flash = st.session_state.pop("archive_flash")
+    st.success(archive_flash.get("message", "아카이브 정리 완료"))
+    result = archive_flash.get("result", {})
+    m1, m2, m3 = st.columns(3)
+    m1.metric("처리된 이미지 수", result.get("processed_images", result.get("image_count", 0)))
+    m2.metric("생성된 게시물 폴더 수", result.get("created_post_folder_count", 0))
+    m3.metric("삭제된 인박스 파일", result.get("deleted_inbox_files", result.get("deleted_inbox_count", 0)))
+    st.info(f"출력 경로: {result.get('created_post_folder', result.get('post_folder'))}")
+    st.caption(f"마스터 인덱스: {result.get('index_path', result.get('master_index'))}")
+    copied = result.get("copied_images", [])
+    if copied:
+        st.dataframe(pd.DataFrame({"copied_images": copied}), use_container_width=True, hide_index=True)
+    errors = result.get("errors", [])
+    if errors:
+        st.warning("처리 중 확인이 필요한 항목이 있습니다.")
+        st.dataframe(pd.DataFrame({"errors": errors}), use_container_width=True, hide_index=True)
 
 missing_translation_packages = missing_video_translation_packages()
 if missing_translation_packages:
@@ -252,24 +271,39 @@ post_date = st.text_input(
     "게시일",
     value="",
     placeholder="예: 2024년 12월 15일, Dec 15 2024, 15.12.2024",
+    key=f"post_date_{st.session_state.post_form_version}",
 )
-caption_text = st.text_area("원문 캡션 (없으면 비워두기)", height=160)
+caption_text = st.text_area(
+    "원문 캡션 (없으면 비워두기)",
+    height=160,
+    key=f"caption_text_{st.session_state.post_form_version}",
+)
 caption_source_lang = st.selectbox(
     "캡션 원문 언어",
     ["de", "en", "ko"],
     index=0,
     format_func=lambda value: {"de": "독일어", "en": "영어", "ko": "한국어"}[value],
+    key=f"caption_source_lang_{st.session_state.post_form_version}",
 )
 computed_title = default_title(caption_text, len(images))
-post_title = st.text_input("게시물 제목", value=computed_title)
-source_url = st.text_input("Source URL", value="TEMP_URL")
+post_title = st.text_input(
+    "게시물 제목",
+    value=computed_title,
+    key=f"post_title_{st.session_state.post_form_version}",
+)
+source_url = st.text_input(
+    "Source URL",
+    value="",
+    placeholder="예: https://www.facebook.com/...",
+    key=f"source_url_{st.session_state.post_form_version}",
+)
 
 with st.expander("선택 메타데이터", expanded=False):
-    category = st.text_input("Category", value="Unknown")
-    event = st.text_input("Event", value="")
-    location = st.text_input("Location", value="")
-    mood = st.text_input("Mood", value="")
-    reels_usable = st.selectbox("Reels Usable", ["maybe", "yes", "no"], index=0)
+    category = st.text_input("Category", value="Unknown", key=f"category_{st.session_state.post_form_version}")
+    event = st.text_input("Event", value="", key=f"event_{st.session_state.post_form_version}")
+    location = st.text_input("Location", value="", key=f"location_{st.session_state.post_form_version}")
+    mood = st.text_input("Mood", value="", key=f"mood_{st.session_state.post_form_version}")
+    reels_usable = st.selectbox("Reels Usable", ["maybe", "yes", "no"], index=0, key=f"reels_usable_{st.session_state.post_form_version}")
 
 process_btn = st.button("기존 아카이브 규칙으로 정리하기", type="primary", use_container_width=True)
 
@@ -288,7 +322,7 @@ if process_btn:
                 archive_root=archive_root,
                 date_text=post_date.strip(),
                 title=post_title.strip(),
-                source_url=source_url.strip(),
+                source_url=source_url.strip() or "TEMP_URL",
                 caption_text=caption_text.strip(),
                 category=category.strip(),
                 event=event.strip(),
@@ -302,22 +336,13 @@ if process_btn:
             st.error(f"처리 실패: {exc}")
             st.exception(exc)
         else:
-            st.success("아카이브 정리 완료")
-            m1, m2, m3 = st.columns(3)
-            m1.metric("처리된 이미지 수", result.get("processed_images", result.get("image_count", 0)))
-            m2.metric("생성된 게시물 폴더 수", result.get("created_post_folder_count", 0))
-            m3.metric("삭제된 인박스 파일", result.get("deleted_inbox_files", result.get("deleted_inbox_count", 0)))
-            st.info(f"출력 경로: {result.get('created_post_folder', result.get('post_folder'))}")
-            st.caption(f"마스터 인덱스: {result.get('index_path', result.get('master_index'))}")
-            copied = result.get("copied_images", [])
-            if copied:
-                st.dataframe(pd.DataFrame({"copied_images": copied}), use_container_width=True, hide_index=True)
-            errors = result.get("errors", [])
-            if errors:
-                st.warning("처리 중 확인이 필요한 항목이 있습니다.")
-                st.dataframe(pd.DataFrame({"errors": errors}), use_container_width=True, hide_index=True)
-            with st.expander("처리 결과 상세", expanded=False):
-                st.json(result)
+            st.session_state.archive_flash = {
+                "message": "아카이브 정리 완료. 다음 게시글을 입력할 수 있습니다.",
+                "result": result,
+            }
+            st.session_state.upload_widget_version += 1
+            st.session_state.post_form_version += 1
+            st.rerun()
 
 st.subheader("최근 아카이브 인덱스")
 index_df = read_master_index(archive_root)
