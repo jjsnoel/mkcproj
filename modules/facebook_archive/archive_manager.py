@@ -739,18 +739,49 @@ def deepl_language_code(lang: str, *, target: bool = False) -> str:
     raise ArchiveError(f"Unsupported DeepL language: {lang}")
 
 
+def user_environment_value(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if value:
+        return value
+
+    if sys.platform != "win32":
+        return ""
+
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            stored, _ = winreg.QueryValueEx(key, name)
+    except Exception:
+        return ""
+
+    value = str(stored or "").strip()
+    if value:
+        os.environ[name] = value
+    return value
+
+
+def deepl_auth_key() -> str:
+    for name in ("DEEPL_API_KEY", "DEEPL_AUTH_KEY"):
+        value = user_environment_value(name)
+        if value:
+            os.environ["DEEPL_API_KEY"] = value
+            return value
+    return ""
+
+
 def deepl_api_url(auth_key: str) -> str:
-    configured = os.environ.get("DEEPL_API_URL", "").strip()
+    configured = user_environment_value("DEEPL_API_URL")
     if configured:
         return configured.rstrip("/")
-    plan = os.environ.get("DEEPL_API_PLAN", "").strip().lower()
+    plan = user_environment_value("DEEPL_API_PLAN").lower()
     if plan == "free" or auth_key.endswith(":fx"):
         return "https://api-free.deepl.com"
     return "https://api.deepl.com"
 
 
 def translate_chunks_with_deepl(chunks: list[str], source_lang: str, target_lang: str) -> list[str]:
-    auth_key = os.environ.get("DEEPL_API_KEY", "").strip()
+    auth_key = deepl_auth_key()
     if not auth_key:
         raise ArchiveError("DEEPL_API_KEY is not set.")
 
@@ -816,8 +847,8 @@ def translate_caption(text: str, source_lang: str = "de", target_lang: str = "ko
 
     try:
         parts, chunks = caption_translation_chunks(original)
-        provider = os.environ.get("CAPTION_TRANSLATION_PROVIDER", "auto").strip().lower()
-        if provider == "deepl" or (provider == "auto" and os.environ.get("DEEPL_API_KEY", "").strip()):
+        provider = user_environment_value("CAPTION_TRANSLATION_PROVIDER").lower() or "auto"
+        if provider == "deepl" or (provider == "auto" and deepl_auth_key()):
             try:
                 translated_chunks = translate_chunks_with_deepl(chunks, source_lang, target_lang)
             except Exception:

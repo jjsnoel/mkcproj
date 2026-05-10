@@ -7,6 +7,13 @@ set "APP_DIR=%ROOT%apps\instagram_dashboard"
 set "VENV=%ROOT%.venv"
 set "MUNICH_TOOLKIT_ROOT=%ROOT%"
 
+for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_API_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
+if not defined DEEPL_API_KEY (
+    for /f "usebackq delims=" %%K in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_AUTH_KEY','User')"`) do if not "%%K"=="" set "DEEPL_API_KEY=%%K"
+)
+for /f "usebackq delims=" %%P in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('DEEPL_API_PLAN','User')"`) do if not "%%P"=="" set "DEEPL_API_PLAN=%%P"
+if defined DEEPL_API_KEY if not defined DEEPL_API_PLAN set "DEEPL_API_PLAN=free"
+
 cd /d "%ROOT%"
 
 echo ==========================================
