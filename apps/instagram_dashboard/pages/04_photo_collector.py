@@ -146,6 +146,14 @@ if st.session_state.get("archive_flash"):
     m3.metric("삭제된 인박스 파일", result.get("deleted_inbox_files", result.get("deleted_inbox_count", 0)))
     st.info(f"출력 경로: {result.get('created_post_folder', result.get('post_folder'))}")
     st.caption(f"마스터 인덱스: {result.get('index_path', result.get('master_index'))}")
+    translation_paths = {
+        "original_caption": result.get("original_caption_path", ""),
+        "korean_translation": result.get("korean_translation_path", ""),
+        "english_translation": result.get("english_translation_path", ""),
+    }
+    translation_paths = {key: value for key, value in translation_paths.items() if value}
+    if translation_paths:
+        st.dataframe(pd.DataFrame([translation_paths]), use_container_width=True, hide_index=True)
     copied = result.get("copied_images", [])
     if copied:
         st.dataframe(pd.DataFrame({"copied_images": copied}), use_container_width=True, hide_index=True)

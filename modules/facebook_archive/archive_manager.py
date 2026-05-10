@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -10,6 +11,7 @@ import sys
 import unicodedata
 from datetime import datetime
 from pathlib import Path
+from urllib import request as urlrequest
 
 
 ARCHIVE_ROOT_NAME = "Muenchner_Knabenchor_Archive"
@@ -149,6 +151,7 @@ MASTER_HEADERS = [
     "caption_summary",
     "original_caption_path",
     "korean_translation_path",
+    "english_translation_path",
     "notes",
 ]
 
@@ -561,6 +564,15 @@ def parse_date(date_text: str):
 def ensure_csv(path: Path, headers: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists() and path.stat().st_size > 0:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            existing_headers = reader.fieldnames or []
+            if existing_headers == headers:
+                return
+            if all(header in headers for header in existing_headers):
+                rows = list(reader)
+                write_csv(path, headers, rows)
+                return
         return
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle)
@@ -686,7 +698,141 @@ def suggest_post_title(caption_text: str, image_count: int = 0, max_chars: int =
     return selected or ("No Caption Photo" if image_count == 1 else "No Caption Photos")
 
 
+def caption_translation_chunks(text: str) -> tuple[list[str], list[str]]:
+    parts = re.split(r"(\r?\n+)", text.strip())
+    chunks = [part for part in parts if part and not re.fullmatch(r"\r?\n+", part)]
+    return parts, chunks
+
+
+def rebuild_caption_translation(parts: list[str], chunks: list[str], translations: list[str]) -> str:
+    translated_by_chunk = {id(chunk): translation.strip() for chunk, translation in zip(chunks, translations)}
+    rebuilt: list[str] = []
+    for part in parts:
+        if re.fullmatch(r"\r?\n+", part):
+            rebuilt.append(part)
+        else:
+            rebuilt.append(translated_by_chunk.get(id(part), part.strip()))
+    return "".join(rebuilt).strip()
+
+
+def deepl_language_code(lang: str, *, target: bool = False) -> str:
+    normalized = (lang or "").strip().lower()
+    if normalized == "de":
+        return "DE"
+    if normalized == "ko":
+        return "KO"
+    if normalized == "en":
+        return "EN-US" if target else "EN"
+    raise ArchiveError(f"Unsupported DeepL language: {lang}")
+
+
+def deepl_api_url(auth_key: str) -> str:
+    configured = os.environ.get("DEEPL_API_URL", "").strip()
+    if configured:
+        return configured.rstrip("/")
+    plan = os.environ.get("DEEPL_API_PLAN", "").strip().lower()
+    if plan == "free" or auth_key.endswith(":fx"):
+        return "https://api-free.deepl.com"
+    return "https://api.deepl.com"
+
+
+def translate_chunks_with_deepl(chunks: list[str], source_lang: str, target_lang: str) -> list[str]:
+    auth_key = os.environ.get("DEEPL_API_KEY", "").strip()
+    if not auth_key:
+        raise ArchiveError("DEEPL_API_KEY is not set.")
+
+    endpoint = f"{deepl_api_url(auth_key)}/v2/translate"
+    translated: list[str] = []
+    for start in range(0, len(chunks), 50):
+        batch = chunks[start : start + 50]
+        payload = {
+            "text": batch,
+            "source_lang": deepl_language_code(source_lang),
+            "target_lang": deepl_language_code(target_lang, target=True),
+            "preserve_formatting": True,
+        }
+        body = json.dumps(payload).encode("utf-8")
+        request = urlrequest.Request(
+            endpoint,
+            data=body,
+            headers={
+                "Authorization": f"DeepL-Auth-Key {auth_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with urlrequest.urlopen(request, timeout=45) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        translated.extend(item.get("text", "").strip() for item in data.get("translations", []))
+
+    if len(translated) != len(chunks):
+        raise ArchiveError("DeepL returned an unexpected number of translations.")
+    return translated
+
+
+def translate_chunks_with_local_model(chunks: list[str], source_lang: str, target_lang: str) -> list[str]:
+    toolkit_root = script_dir().parents[1]
+    translator_dir = toolkit_root / "apps" / "german_stt_local"
+    if str(translator_dir) not in sys.path:
+        sys.path.insert(0, str(translator_dir))
+
+    from local_translator import DEFAULT_MODEL, LocalNLLBTranslator  # type: ignore
+
+    translator = LocalNLLBTranslator(model_name=DEFAULT_MODEL)
+    return translator.translate_texts(
+        chunks,
+        source_lang=source_lang,
+        target_lang=target_lang,
+        batch_size=1,
+    )
+
+
+def translate_caption(text: str, source_lang: str = "de", target_lang: str = "ko") -> str:
+    original = text.strip()
+    if not original:
+        return ""
+
+    source_lang = (source_lang or "de").strip().lower()
+    target_lang = (target_lang or "ko").strip().lower()
+    if source_lang == target_lang:
+        return original
+    if source_lang not in {"de", "en", "ko"}:
+        raise ArchiveError(f"Unsupported caption source language for translation: {source_lang}")
+    if target_lang not in {"ko", "en"}:
+        raise ArchiveError(f"Unsupported caption target language: {target_lang}")
+
+    try:
+        parts, chunks = caption_translation_chunks(original)
+        provider = os.environ.get("CAPTION_TRANSLATION_PROVIDER", "auto").strip().lower()
+        if provider == "deepl" or (provider == "auto" and os.environ.get("DEEPL_API_KEY", "").strip()):
+            try:
+                translated_chunks = translate_chunks_with_deepl(chunks, source_lang, target_lang)
+            except Exception:
+                if provider == "deepl":
+                    raise
+                translated_chunks = translate_chunks_with_local_model(chunks, source_lang, target_lang)
+        else:
+            translated_chunks = translate_chunks_with_local_model(chunks, source_lang, target_lang)
+        translated = rebuild_caption_translation(parts, chunks, translated_chunks)
+    except Exception as exc:
+        return (
+            f"{CAPTION_TRANSLATION_PENDING_MARKER}\n"
+            f"Caption translation failed for {source_lang}->{target_lang}: {exc}\n\n"
+            f"Original:\n{original}"
+        )
+
+    return translated.strip()
+
+
 def translate_caption_to_korean(text: str, source_lang: str = "de") -> str:
+    return translate_caption(text, source_lang=source_lang, target_lang="ko")
+
+
+def translate_caption_to_english(text: str, source_lang: str = "de") -> str:
+    return translate_caption(text, source_lang=source_lang, target_lang="en")
+
+
+def translate_caption_to_korean_legacy(text: str, source_lang: str = "de") -> str:
     compact = text.strip()
     if not compact:
         return ""
@@ -746,13 +892,22 @@ def fill_missing_korean_captions(archive_root: str | Path, source_lang: str = "d
             continue
 
         korean_path = caption_path.with_name("caption_ko.txt")
+        english_path = caption_path.with_name("caption_en.txt")
         current_korean_text = read_text_safely(korean_path) if korean_path.exists() else ""
-        if current_korean_text.strip() and CAPTION_TRANSLATION_PENDING_MARKER not in current_korean_text:
+        current_english_text = read_text_safely(english_path) if english_path.exists() else ""
+        korean_ready = current_korean_text.strip() and CAPTION_TRANSLATION_PENDING_MARKER not in current_korean_text
+        english_ready = current_english_text.strip() and CAPTION_TRANSLATION_PENDING_MARKER not in current_english_text
+        if korean_ready and english_ready:
             continue
 
-        korean_text = translate_caption_to_korean(caption_text, source_lang)
-        korean_path.write_text(korean_text, encoding="utf-8")
-        updated.append(relative_to_archive(korean_path, root))
+        if not korean_ready:
+            korean_text = translate_caption_to_korean(caption_text, source_lang)
+            korean_path.write_text(korean_text, encoding="utf-8")
+            updated.append(relative_to_archive(korean_path, root))
+        if not english_ready:
+            english_text = translate_caption_to_english(caption_text, source_lang)
+            english_path.write_text(english_text, encoding="utf-8")
+            updated.append(relative_to_archive(english_path, root))
 
     return updated
 
@@ -836,7 +991,10 @@ def archive_inbox_post(
 
     has_caption = bool(final_caption_text.strip())
     korean_caption_text = translate_caption_to_korean(final_caption_text, caption_source_lang) if has_caption else ""
+    english_caption_text = translate_caption_to_english(final_caption_text, caption_source_lang) if has_caption else ""
     errors: list[str] = []
+    if CAPTION_TRANSLATION_PENDING_MARKER in english_caption_text:
+        errors.append("Caption English translation is pending. Install translation packages, then try again.")
     if CAPTION_TRANSLATION_PENDING_MARKER in korean_caption_text:
         errors.append("캡션 한국어 번역은 아직 완료되지 않았습니다. SETUP_VIDEO_STT_ONCE.bat 실행 후 재번역 버튼을 사용하세요.")
 
@@ -859,6 +1017,7 @@ def archive_inbox_post(
     if has_caption:
         (post_folder / "caption_original.txt").write_text(final_caption_text, encoding="utf-8")
         (post_folder / "caption_ko.txt").write_text(korean_caption_text, encoding="utf-8")
+        (post_folder / "caption_en.txt").write_text(english_caption_text, encoding="utf-8")
 
     (post_folder / "source_url.txt").write_text((source_url or "").strip() + "\n", encoding="utf-8")
     (post_folder / "post_info.md").write_text(
@@ -899,6 +1058,7 @@ def archive_inbox_post(
             "caption_summary": caption_summary(final_caption_text),
             "original_caption_path": relative_to_archive(post_folder / "caption_original.txt", root) if has_caption else "",
             "korean_translation_path": relative_to_archive(post_folder / "caption_ko.txt", root) if has_caption else "",
+            "english_translation_path": relative_to_archive(post_folder / "caption_en.txt", root) if has_caption else "",
             "notes": "",
         },
     )
@@ -917,6 +1077,9 @@ def archive_inbox_post(
         "deleted_inbox_files": deleted_inbox_count,
         "master_index": str(master_index_path),
         "index_path": str(master_index_path),
+        "original_caption_path": str(post_folder / "caption_original.txt") if has_caption else "",
+        "korean_translation_path": str(post_folder / "caption_ko.txt") if has_caption else "",
+        "english_translation_path": str(post_folder / "caption_en.txt") if has_caption else "",
         "copied_images": [relative_to_archive(path, root) for path in copied_images],
         "errors": errors,
     }
@@ -959,6 +1122,7 @@ def make_post_info(
     relative_folder = relative_to_archive(post_folder, archive_root)
     original_caption_note = "See: caption_original.txt" if has_caption else "No caption file."
     korean_translation_note = "See: caption_ko.txt" if has_caption else "No Korean translation file."
+    english_translation_note = "See: caption_en.txt" if has_caption else "No English translation file."
     return f"""# Facebook Post Archive
 
 ## Basic Info
@@ -975,6 +1139,9 @@ def make_post_info(
 
 ## Korean Translation
 {korean_translation_note}
+
+## English Translation
+{english_translation_note}
 
 ## Context
 - Event: {event}
@@ -1074,6 +1241,7 @@ def scan_post_folder(post_folder: Path, archive_root: Path) -> dict[str, object]
 
     caption_path = post_folder / "caption_original.txt"
     caption_ko_path = post_folder / "caption_ko.txt"
+    caption_en_path = post_folder / "caption_en.txt"
     caption_text = read_text_safely(caption_path)
 
     images_dir = post_folder / "images"
@@ -1099,6 +1267,7 @@ def scan_post_folder(post_folder: Path, archive_root: Path) -> dict[str, object]
         "caption_summary": caption_summary(caption_text),
         "original_caption_path": relative_to_archive(caption_path, archive_root) if caption_path.exists() else "",
         "korean_translation_path": relative_to_archive(caption_ko_path, archive_root) if caption_ko_path.exists() else "",
+        "english_translation_path": relative_to_archive(caption_en_path, archive_root) if caption_en_path.exists() else "",
         "notes": extract_section_notes(info_path),
     }
 
@@ -1161,7 +1330,10 @@ def command_new_post(args: argparse.Namespace) -> int:
     has_caption = caption_file is not None
     caption_text = read_text_safely(caption_file) if has_caption else ""
     korean_caption_text = translate_caption_to_korean(caption_text, caption_source_lang) if has_caption else ""
+    english_caption_text = translate_caption_to_english(caption_text, caption_source_lang) if has_caption else ""
     errors: list[str] = []
+    if CAPTION_TRANSLATION_PENDING_MARKER in english_caption_text:
+        errors.append("Caption English translation is pending. Install translation packages, then try again.")
     if CAPTION_TRANSLATION_PENDING_MARKER in korean_caption_text:
         errors.append("Caption Korean translation is pending. Run SETUP_VIDEO_STT_ONCE.bat, then rerun translation.")
     title = title.strip() or suggest_post_title(caption_text, len(image_sources))
@@ -1184,6 +1356,7 @@ def command_new_post(args: argparse.Namespace) -> int:
     if has_caption:
         (post_folder / "caption_original.txt").write_text(caption_text, encoding="utf-8")
         (post_folder / "caption_ko.txt").write_text(korean_caption_text, encoding="utf-8")
+        (post_folder / "caption_en.txt").write_text(english_caption_text, encoding="utf-8")
     (post_folder / "source_url.txt").write_text((source_url or "").strip() + "\n", encoding="utf-8")
     (post_folder / "post_info.md").write_text(
         make_post_info(
@@ -1223,6 +1396,7 @@ def command_new_post(args: argparse.Namespace) -> int:
             "caption_summary": caption_summary(caption_text),
             "original_caption_path": relative_to_archive(post_folder / "caption_original.txt", archive_root) if has_caption else "",
             "korean_translation_path": relative_to_archive(post_folder / "caption_ko.txt", archive_root) if has_caption else "",
+            "english_translation_path": relative_to_archive(post_folder / "caption_en.txt", archive_root) if has_caption else "",
             "notes": "",
         },
     )
