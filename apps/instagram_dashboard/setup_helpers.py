@@ -8,6 +8,8 @@ from pathlib import Path
 
 VIDEO_TRANSLATION_MODULES = {
     "whisper": "openai-whisper",
+    "openai": "openai",
+    "dotenv": "python-dotenv",
     "transformers": "transformers",
     "sentencepiece": "sentencepiece",
     "sacremoses": "sacremoses",
