@@ -4,6 +4,8 @@ torchvision==0.25.0
 torchaudio==2.10.0
 streamlit
 openai-whisper
+openai
+python-dotenv
 transformers
 sentencepiece
 sacremoses

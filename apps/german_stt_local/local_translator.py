@@ -19,6 +19,7 @@ DEFAULT_MODEL = "facebook/nllb-200-distilled-600M"
 LANG_CODES = {
     "de": "deu_Latn",
     "en": "eng_Latn",
+    "la": "lat_Latn",
     "ko": "kor_Hang",
 }
 
